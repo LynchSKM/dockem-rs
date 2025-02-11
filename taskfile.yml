@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  install-deps:
+    desc: "Install dependencies"
+    cmds:
+      - |
+        cd cli
+        cargo build
