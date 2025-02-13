@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-cargo-modules = "0.22.0"
 clap = "4.5.29"
 serde_json = "1.0.138"
 serde = { version = "1.0.217", features = ["derive"] }
@@ -13,3 +12,4 @@ merkle_hash = "3.7.0"
 
 [dev-dependencies]
 tempfile = "3.16.0"
+cargo-modules = "0.22.0"
