@@ -10,3 +10,6 @@ serde_json = "1.0.138"
 serde = { version = "1.0.217", features = ["derive"] }
 rayon = "1.10.0"
 merkle_hash = "3.7.0"
+
+[dev-dependencies]
+tempfile = "3.16.0"
