@@ -1,6 +1,10 @@
-pub mod directory_exists;
-pub mod file_exists;
-pub mod hash_watch_directories;
-pub mod hash_watch_files;
-pub mod os_open;
-pub mod parse_version_file_json;
+mod directory_exists;
+mod extract_version;
+mod file_exists;
+pub use file_exists::*;
+mod hash_watch_directories;
+mod hash_watch_files;
+mod os_open;
+pub use os_open::*;
+mod parse_version_file_json;
+pub use parse_version_file_json::*;
