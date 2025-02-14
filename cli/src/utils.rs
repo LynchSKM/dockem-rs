@@ -13,10 +13,13 @@ mod extract_version;
 mod parse_version_file_json;
 pub use parse_version_file_json::*;
 
+mod assert_string_not_empty;
+pub use assert_string_not_empty::assert_string_not_empty;
 mod hash_string;
 pub use hash_string::*;
 mod hash_watch_directories;
 mod hash_watch_files;
 
 mod os_open;
+
 pub use os_open::*;

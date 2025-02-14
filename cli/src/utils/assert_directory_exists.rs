@@ -6,7 +6,7 @@ use std::path::Path;
 ///
 /// # Arguments
 /// * `path` - The path to the directory that should exist.
-/// * `error_message` - The error message template. It should contain a `%s` for the directory path.
+/// * `error_message` - The error message template. It can contain a `%s` for the directory path.
 ///
 /// # Returns
 /// * `Ok(())` if the directory exists.
@@ -26,7 +26,6 @@ pub fn assert_directory_exists(path: &str, error_message: Option<&str>) -> Resul
     let output_message = error_message.replace("%s", &abs_directory_path);
 
     assert_or_exit!(exists, output_message);
-    Ok(())
 }
 
 #[cfg(test)]

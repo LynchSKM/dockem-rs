@@ -7,7 +7,7 @@ use std::path::Path;
 ///
 /// # Arguments
 /// * `path` - The path to the file that should exist.
-/// * `error_message` - The error message template. It should contain a `%s` for the file path.
+/// * `error_message` - The error message template. It can contain a `%s` for the file path.
 ///
 /// # Returns
 /// * `Ok(())` if the file exists.
@@ -27,7 +27,6 @@ pub fn assert_file_exists(path: &str, error_message: Option<&str>) -> Result<(),
     let output_message = error_message.replace("%s", &abs_file_path);
 
     assert_or_exit!(exists, output_message);
-    Ok(())
 }
 
 #[cfg(test)]
