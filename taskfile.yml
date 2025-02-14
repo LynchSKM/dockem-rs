@@ -7,3 +7,9 @@ tasks:
       - |
         cd cli
         cargo build
+  test:
+    desc: "Run the tests"
+    cmds:
+      - |
+        cd cli
+        cargo test
