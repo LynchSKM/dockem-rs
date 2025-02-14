@@ -3,6 +3,22 @@ use rayon::prelude::*;
 use std::fs;
 use std::io;
 
+/// Hashes the given file.
+///
+/// # Arguments
+/// * `file` - The file to be hashed.
+///
+/// # Returns
+/// * `Ok(String)` containing the hash if successful.
+/// * `Err(io::Error)` if any file operation fails.
+pub fn hash_file(file_path: &str) -> Result<String, io::Error> {
+    fs::read(file_path).map(|content| {
+        let mut hasher = Hasher::new();
+        hasher.update(&content);
+        hasher.finalize().to_hex().to_string()
+    })
+}
+
 /// Hashes the given list of files in parallel and returns a combined hash.
 ///
 /// # Arguments
@@ -21,15 +37,9 @@ pub fn hash_watch_files(watch_files: &[&str]) -> io::Result<String> {
 
     let hashes: Vec<String> = sorted_files
         .par_iter()
-        .filter_map(|file_path| {
-            match fs::read(file_path).map(|content| {
-                let mut hasher = Hasher::new();
-                hasher.update(&content);
-                hasher.finalize().to_hex().to_string()
-            }) {
-                Ok(hash) => Some(hash),
-                Err(_) => None,
-            }
+        .filter_map(|file_path| match hash_file(file_path) {
+            Ok(hash) => Some(hash),
+            Err(_) => None,
         })
         .collect();
 
