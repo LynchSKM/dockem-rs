@@ -27,7 +27,6 @@ pub fn assert_file_exists(path: &str, error_message: Option<&str>) -> Result<(),
     let output_message = error_message.replace("%s", &abs_file_path);
 
     assert_or_exit!(exists, output_message);
-    Ok(())
 }
 
 #[cfg(test)]

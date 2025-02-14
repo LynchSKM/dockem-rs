@@ -26,7 +26,6 @@ pub fn assert_directory_exists(path: &str, error_message: Option<&str>) -> Resul
     let output_message = error_message.replace("%s", &abs_directory_path);
 
     assert_or_exit!(exists, output_message);
-    Ok(())
 }
 
 #[cfg(test)]
