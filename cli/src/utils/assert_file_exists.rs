@@ -7,7 +7,7 @@ use std::path::Path;
 ///
 /// # Arguments
 /// * `path` - The path to the file that should exist.
-/// * `error_message` - The error message template. It should contain a `%s` for the file path.
+/// * `error_message` - The error message template. It can contain a `%s` for the file path.
 ///
 /// # Returns
 /// * `Ok(())` if the file exists.

@@ -6,7 +6,7 @@ use std::path::Path;
 ///
 /// # Arguments
 /// * `path` - The path to the directory that should exist.
-/// * `error_message` - The error message template. It should contain a `%s` for the directory path.
+/// * `error_message` - The error message template. It can contain a `%s` for the directory path.
 ///
 /// # Returns
 /// * `Ok(())` if the directory exists.
