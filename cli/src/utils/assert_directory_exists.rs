@@ -1,5 +1,4 @@
 use crate::assert_or_exit;
-// Importing the macro
 use crate::utils::directory_exists;
 use std::path::Path;
 
@@ -44,7 +43,7 @@ mod tests {
 
         // Check that the function returns Ok(()) when the directory exists
         let result = assert_directory_exists(directory_path, None);
-        assert!(result.is_ok(), "directory should exist");
+        assert!(result.is_ok(), "Directory should exist");
 
         // Delete the directory manually to test non-existence
         fs::remove_dir(directory_path).expect("Failed to delete temp directory");
