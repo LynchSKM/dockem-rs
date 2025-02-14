@@ -27,7 +27,7 @@ pub fn hash_file(file_path: &str) -> Result<String, io::Error> {
 /// # Returns
 /// * `Ok(String)` containing the hash if successful.
 /// * `Err(io::Error)` if any file operation fails.
-pub fn hash_watch_files(watch_files: &[&str]) -> io::Result<String> {
+pub fn hash_watch_files(watch_files: &[&str]) -> Result<String, io::Error> {
     if watch_files.is_empty() {
         return Ok(String::new());
     }
