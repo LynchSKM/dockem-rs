@@ -1,8 +1,8 @@
 /// Generates a docker image name with the format `org/image-name:hash`.
 ///
 /// # Arguments
-/// `registry` - The registry where the image belongs to.
-/// `image_name` - The name to give the image.
+/// * `registry` - The registry where the image belongs to.
+/// * `image_name` - The name to give the image.
 /// * `tag` - The image tag to check for.
 ///
 /// # Returns
