@@ -1,3 +1,4 @@
+use std::format;
 /// Generates a docker image name with the format `org/imageName:hash` or `imageName:hash`.
 ///
 /// # Arguments
