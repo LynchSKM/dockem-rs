@@ -9,7 +9,7 @@ pub struct BuildDockerImageParams {
     pub image_name: String,
     pub latest: bool,
     pub main_version: bool,
-    pub registry: Option<String>,
+    pub registry: String,
     pub tag: Vec<String>,
     pub version_file: String,
     pub watch_directory: Vec<String>,

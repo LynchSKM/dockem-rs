@@ -35,5 +35,10 @@ mod docker_config_loader;
 mod file_guard;
 pub use file_guard::*;
 mod generate_docker_image_name;
+pub use generate_docker_image_name::*;
+mod tag_and_push_image;
+pub use tag_and_push_image::*;
+mod tag_and_push_images;
 mod tar_build_context;
+
 pub use tar_build_context::*;
