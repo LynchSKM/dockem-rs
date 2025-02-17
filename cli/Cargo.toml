@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.95"
+bollard = "0.18.1"
 clap = "4.5.29"
 merkle_hash = "3.7.0"
 oci-client = "0.14.0"
