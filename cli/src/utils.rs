@@ -36,3 +36,4 @@ mod file_guard;
 pub use file_guard::*;
 mod generate_docker_image_name;
 mod tar_build_context;
+pub use tar_build_context::*;
