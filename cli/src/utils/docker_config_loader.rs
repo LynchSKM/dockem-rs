@@ -6,16 +6,14 @@ use std::fs;
 use std::path::Path;
 
 #[derive(Deserialize, Serialize, Debug, Default)]
-struct DockerConfig {
-    auths: Option<HashMap<String, AuthConfig>>,
+pub(crate) struct DockerConfig {
+    auths: Option<HashMap<String, DockerAuthConfig>>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Default, Clone)]
-struct AuthConfig {
-    username: Option<String>,
-    password: Option<String>,
-    serveraddress: Option<String>,
-    identitytoken: Option<String>,
+pub(crate) struct DockerAuthConfig {
+    pub auth: Option<String>,
+    pub email: Option<String>,
 }
 
 impl DockerConfig {
@@ -65,7 +63,7 @@ impl DockerConfig {
     /// # Returns
     ///
     /// Returns an option containing the `AuthConfig` if found, or `None` if not.
-    pub fn get_auth_config_for_registry(&self, registry_name: &str) -> Option<AuthConfig> {
+    pub fn get_auth_config_for_registry(&self, registry_name: &str) -> Option<DockerAuthConfig> {
         self.auths
             .as_ref()
             .and_then(|auths| auths.get(registry_name).cloned())
