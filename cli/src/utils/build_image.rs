@@ -22,7 +22,7 @@ pub async fn build_image(
     params: Arc<BuildDockerImageParams>,
     image_hash: String,
     build_log: Arc<Mutex<BuildLog>>,
-) -> Result<()> {
+) -> Result<String> {
     // Create the build context tarball in a blocking task
     let build_context = {
         let build_log = Arc::clone(&build_log);
@@ -67,5 +67,5 @@ pub async fn build_image(
         }
     }
 
-    Ok(())
+    Ok(local_tag)
 }
