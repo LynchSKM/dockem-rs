@@ -24,3 +24,5 @@ mod os_open;
 pub use os_open::*;
 
 mod build_log;
+pub use build_log::*;
+mod create_regclient_client;
