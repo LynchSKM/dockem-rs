@@ -23,6 +23,7 @@ mod hash_watch_files;
 mod os_open;
 pub use os_open::*;
 
+mod build_docker_image_params;
 mod build_log;
 mod check_manifest_head;
 mod create_docker_client;
