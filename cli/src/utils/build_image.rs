@@ -11,6 +11,7 @@ use std::sync::{Arc, Mutex};
 /// # Arguments
 /// * `docker` - A connected Docker client.
 /// * `params` - Params from the user containing settings for the docker build.
+/// * `image_hash` - The hash of the image.
 /// * `build_log` - A shared, mutable reference to the build log.
 ///
 /// # Returns
@@ -18,6 +19,7 @@ use std::sync::{Arc, Mutex};
 pub async fn build_image(
     docker: &Docker,
     params: Arc<BuildDockerImageParams>,
+    image_hash: String,
     build_log: Arc<Mutex<BuildLog>>,
 ) -> Result<()> {
     // Create the build context tarball in a blocking task
@@ -33,14 +35,15 @@ pub async fn build_image(
     };
 
     // Set up build options
+    let local_tag = format!("local:{}", image_hash);
     let build_options = BuildImageOptions {
         dockerfile: build_context
             .dockerfile_path
             .as_ref()
             .and_then(|p| p.to_str())
             .unwrap_or("Dockerfile"), // Use the returned Dockerfile path or fallback to "Dockerfile"
-        t: &params.image_name, // Tag the image with the provided name
-        rm: true,              // Remove intermediate containers after a successful build
+        t: &local_tag, // Tag the image with the provided name
+        rm: true,      // Remove intermediate containers after a successful build
         ..Default::default()
     };
 
