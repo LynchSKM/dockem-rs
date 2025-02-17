@@ -28,3 +28,4 @@ mod check_manifest_head;
 mod create_docker_client;
 mod create_regclient_client;
 mod docker_config_loader;
+mod generate_docker_image_name;
