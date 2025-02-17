@@ -4,9 +4,9 @@
 pub struct BuildLog {
     pub custom_dockerfile: bool,
     pub custom_host: bool,
-    pub docker_password: String,
-    pub docker_registry: String,
-    pub docker_username: String,
+    pub docker_password: Option<String>,
+    pub docker_registry: Option<String>,
+    pub docker_username: Option<String>,
     pub hash_exists: bool,
     pub hashed_image_name: String,
     pub image_hash: String,
