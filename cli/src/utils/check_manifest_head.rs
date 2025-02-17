@@ -1,7 +1,5 @@
-use oci_client::errors::OciDistributionError;
 use oci_client::secrets::RegistryAuth;
 use oci_client::{Client as RegistryClient, Reference};
-use std::any::Any;
 
 /// Checks if the registry contains an image with the tag specified. If the manifest check fails it
 /// will return false. Otherwise, it will return true to indicate that the image does exist with the
@@ -33,7 +31,11 @@ pub async fn check_manifest_head(
                 "The image hash {} does not exist on the registry or we were unable to pull it.",
                 tag
             );
-            if error.type_id() == OciDistributionError::AuthenticationFailure.type_id() {
+            if error
+                .to_string()
+                .to_lowercase()
+                .contains("authentication failure")
+            {
                 println!("WARN: Unable to pull the details from the registry, please ensure you have the correct credentials.");
                 println!("WARN: The build will continue, but this should investigated.");
             }
