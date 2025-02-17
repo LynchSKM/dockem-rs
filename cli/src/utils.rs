@@ -24,9 +24,15 @@ mod os_open;
 pub use os_open::*;
 
 mod build_docker_image_params;
+pub use build_docker_image_params::*;
+mod build_image;
 mod build_log;
+pub use build_log::*;
 mod check_manifest_head;
 mod create_docker_client;
 mod create_regclient_client;
 mod docker_config_loader;
+mod file_guard;
+pub use file_guard::*;
 mod generate_docker_image_name;
+mod tar_build_context;
