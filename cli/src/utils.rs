@@ -24,6 +24,7 @@ mod os_open;
 pub use os_open::*;
 
 mod build_log;
+mod check_manifest_head;
 mod create_docker_client;
 mod create_regclient_client;
 mod docker_config_loader;
