@@ -6,6 +6,7 @@ pub struct BuildDockerImageParams {
     pub docker_username: Option<String>,
     pub dockerfile_path: String,
     pub ignore_build_directory: bool,
+    pub image_name: String,
     pub latest: bool,
     pub main_version: bool,
     pub registry: Option<String>,
