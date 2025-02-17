@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.95"
 bollard = "0.18.1"
-clap = "4.5.29"
+clap = "4.5.30"
 merkle_hash = "3.7.0"
 oci-client = "0.14.0"
 serde_json = "1.0.138"
@@ -15,5 +15,5 @@ rayon = "1.10.0"
 tokio = "1.43.0"
 
 [dev-dependencies]
-tempfile = "3.16.0"
+tempfile = "3.17.1"
 cargo-modules = "0.22.0"
