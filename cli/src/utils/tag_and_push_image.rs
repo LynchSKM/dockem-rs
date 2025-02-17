@@ -5,6 +5,7 @@ use bollard::Docker;
 use futures_util::stream::StreamExt;
 
 /// Tags and pushes a Docker image to a registry.
+/// It will print updates to the console and wait for the stream to complete or fail.
 ///
 /// # Arguments
 /// * `docker` - A connected Docker client.
