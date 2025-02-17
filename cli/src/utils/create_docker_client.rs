@@ -24,7 +24,7 @@ use std::error::Error;
 /// This function will either create a Docker client using the provided credentials
 /// or attempt to load credentials from the Docker configuration file (`~/.docker/config.json`).
 /// If no credentials are provided, it tries to fetch them from the `auths` field in the Docker config.
-async fn create_docker_client(
+pub async fn create_docker_client(
     username: Option<String>,
     password: Option<String>,
     registry_name: String,
