@@ -1,4 +1,4 @@
-/// Generates a docker image name with the format `org/image-name:hash`.
+/// Generates a docker image name with the format `org/imageName:hash` or `imageName:hash`.
 ///
 /// # Arguments
 /// * `registry` - The registry where the image belongs to.
@@ -6,10 +6,11 @@
 /// * `tag` - The image tag to check for.
 ///
 /// # Returns
-/// * `String` Formatted as `org/image-name:hash`.
+/// * `String` Formatted as `org/imageName:hash` or `imageName:hash`
 ///
 pub fn generate_docker_image_name(registry: &str, image_name: &str, tag: &str) -> String {
     if registry.is_empty() {
-        return format!("{}:{}", image_name, tag).to_string();
+        format!("{}:{}", image_name, tag).to_string();
     }
+    format!("{}/{}:{}", registry, image_name, tag)
 }
