@@ -7,6 +7,7 @@ use futures_util::stream::StreamExt;
 use std::sync::{Arc, Mutex};
 
 /// Builds a Docker image using the provided build context tarball.
+/// It will name the image local:imageHash.
 ///
 /// # Arguments
 /// * `docker` - A connected Docker client.
