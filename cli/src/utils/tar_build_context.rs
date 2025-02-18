@@ -7,7 +7,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 /// The result of creating the build context tarball.
-struct TarBuildContextResult {
+pub struct TarBuildContextResult {
     pub(crate) tarball: Vec<u8>,                 // The gzipped tarball data
     pub(crate) dockerfile_path: Option<PathBuf>, // The relative path to the Dockerfile
     _dockerfile_guard: Option<FileGuard>,        // The guard for the temporary Dockerfile
