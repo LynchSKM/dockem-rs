@@ -27,23 +27,23 @@ pub async fn create_regclient_client(
     let mut custom_host = false;
 
     if !registry.is_empty() {
-        build_log.docker_registry = registry.to_string();
+        build_log.docker_registry = Some(registry.to_string());
         custom_host = true;
     }
 
     if !username.is_empty() {
-        build_log.docker_username = username.to_string();
+        build_log.docker_username = Some(username.to_string());
         custom_host = true;
     }
 
     if !password.is_empty() {
-        build_log.docker_password = password.to_string();
+        build_log.docker_password = Some(password.to_string());
         custom_host = true;
     }
 
     if custom_host && registry.is_empty() {
         // Use Docker default registry if only authentication details are provided
-        build_log.docker_registry = "index.docker.io".to_string();
+        build_log.docker_registry = Some("index.docker.io".to_string());
     }
 
     build_log.custom_host = custom_host;
@@ -73,7 +73,8 @@ pub async fn create_regclient_client(
         .map_err(|err| {
             eprintln!(
                 "ERROR: Failed to authenticate with registry for pull operation: '{}': {}",
-                build_log.docker_registry, err
+                build_log.docker_registry.clone().unwrap().to_string(),
+                err
             );
             err
         })?;
@@ -84,7 +85,8 @@ pub async fn create_regclient_client(
         .map_err(|err| {
             eprintln!(
                 "ERROR: Failed to authenticate with registry for push operation: '{}': {}",
-                build_log.docker_registry, err
+                build_log.docker_registry.clone().unwrap().to_string(),
+                err
             );
             err
         })?;
