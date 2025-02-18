@@ -38,6 +38,7 @@ mod generate_docker_image_name;
 pub use generate_docker_image_name::*;
 mod tag_and_push_image;
 pub use tag_and_push_image::*;
+mod copy_docker_image;
 mod tag_and_push_images;
 mod tar_build_context;
 
