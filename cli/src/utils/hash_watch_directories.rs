@@ -32,7 +32,7 @@ pub fn hash_directory(directory: &str) -> Result<String, IndexingError> {
 /// # Returns
 /// * `Ok(String)` containing the hash if successful.
 /// * `Err(io::Error)` if any file operation fails.
-pub fn hash_watch_directories(watch_directories: &[&str]) -> Result<String, io::Error> {
+pub fn hash_watch_directories(watch_directories: &Vec<String>) -> Result<String, io::Error> {
     if watch_directories.is_empty() {
         return Ok(String::new());
     }
