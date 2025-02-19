@@ -20,7 +20,7 @@ use std::sync::{Arc, Mutex};
 pub async fn build_image(
     docker: &Docker,
     params: Arc<BuildDockerImageParams>,
-    image_hash: String,
+    image_hash: &str,
     build_log: Arc<Mutex<BuildLog>>,
 ) -> Result<String> {
     // Create the build context tarball in a blocking task
