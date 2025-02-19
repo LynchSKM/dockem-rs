@@ -41,6 +41,8 @@ pub use generate_docker_image_name::*;
 mod tag_and_push_image;
 pub use tag_and_push_image::*;
 mod copy_existing_image_tag;
+mod remove_empty_strings;
 mod tag_and_push_images;
 mod tar_build_context;
+
 pub use tar_build_context::*;
