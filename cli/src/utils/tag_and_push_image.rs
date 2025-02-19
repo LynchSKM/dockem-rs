@@ -19,7 +19,7 @@ pub async fn tag_and_push_image(
     docker: &Docker,
     from_image: &str,
     to_image: &str,
-    credentials: DockerCredentials,
+    credentials: &DockerCredentials,
 ) -> Result<(), BollardError> {
     // Split `to_image` into repo and tag
     let (repo, tag) = match to_image.split_once(':') {
