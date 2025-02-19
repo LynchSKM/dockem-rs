@@ -3,7 +3,7 @@ use rayon::prelude::*;
 use std::fs;
 use std::io;
 
-/// Hashes the given file.
+/// Hashes the given file with its filename included.
 ///
 /// # Arguments
 /// * `file` - The file to be hashed.
@@ -15,6 +15,7 @@ pub fn hash_file(file_path: &str) -> Result<String, io::Error> {
     fs::read(file_path).map(|content| {
         let mut hasher = Hasher::new();
         hasher.update(&content);
+        hasher.update(file_path.as_bytes());
         hasher.finalize().to_hex().to_string()
     })
 }

@@ -13,10 +13,10 @@ use std::path::Path;
 /// # Returns
 /// * `Ok(String)` containing the hash if successful.
 /// * `Err(std::Error)` if any file operation fails.
-fn hash_directory(directory: &str) -> Result<String, IndexingError> {
+pub fn hash_directory(directory: &str) -> Result<String, IndexingError> {
     let tree_result = MerkleTree::builder(directory)
         .algorithm(Algorithm::Blake3) // Change to preferred algorithm
-        .hash_names(false) // Include file names in hash if needed
+        .hash_names(true) // Include file names in hash if needed
         .build();
     match tree_result {
         Ok(tree_final) => Ok(tree_final.root.item.hash.to_hex_string()),
