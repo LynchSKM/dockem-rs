@@ -1,9 +1,9 @@
 use crate::utils::build_log::BuildLog;
 use anyhow::Result;
 use oci_client::client::{Client, ClientConfig, ClientProtocol};
+use oci_client::errors::OciDistributionError;
 use oci_client::secrets::RegistryAuth;
 use oci_client::{Reference, RegistryOperation};
-use std::error::Error;
 use std::str::FromStr;
 
 /// Creates an OCI distribution client and authenticates with the specified registry.
@@ -16,14 +16,14 @@ use std::str::FromStr;
 /// * `build_log` - A mutable reference to the `BuildLog` struct to record the build state.
 ///
 /// # Returns
-/// * `Result<(Client, Reference), Box<dyn Error>>` containing the initialized and authenticated client that can pull and push images or an error if it fails.
+/// * `Result<(Client, Reference), OciDistributionError>` containing the initialized and authenticated client that can pull and push images or an error if it fails.
 pub async fn create_regclient_client(
     registry: &str,
     username: &str,
     password: &str,
     docker_image_name: &str,
     build_log: &mut BuildLog,
-) -> Result<(Client, Reference), Box<dyn Error>> {
+) -> Result<(Client, Reference), OciDistributionError> {
     let mut custom_host = false;
 
     if !registry.is_empty() {
