@@ -1,7 +1,6 @@
 use super::docker_config_loader::DockerConfig;
 use bollard::auth::DockerCredentials;
 use bollard::Docker;
-use std::error::Error;
 
 /// Creates a Docker client, either with explicit username/password credentials
 /// or by loading authentication details from the Docker configuration file.
@@ -27,8 +26,8 @@ use std::error::Error;
 pub async fn create_docker_client(
     username: Option<String>,
     password: Option<String>,
-    registry_name: String,
-) -> Result<(Docker, DockerCredentials), Box<dyn Error>> {
+    registry_name: &str,
+) -> Result<(Docker, DockerCredentials), Box<dyn std::error::Error>> {
     // Check if both username and password are provided
     if let (Some(user), Some(pass)) = (username, password) {
         // If credentials are provided, create a Docker client with the specified auth
@@ -37,7 +36,7 @@ pub async fn create_docker_client(
             password: Some(pass),
             auth: None,
             email: None,
-            serveraddress: Some(registry_name),
+            serveraddress: Some(registry_name.to_string()),
             identitytoken: None,
             registrytoken: None,
         };
@@ -59,7 +58,7 @@ pub async fn create_docker_client(
                 password: None,
                 auth: auth_config.auth,
                 email: auth_config.email,
-                serveraddress: Some(registry_name),
+                serveraddress: Some(registry_name.to_string()),
                 identitytoken: None,
                 registrytoken: None,
             };
