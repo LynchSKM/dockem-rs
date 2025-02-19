@@ -29,6 +29,8 @@ mod build_image;
 mod build_log;
 pub use build_log::*;
 mod check_manifest_head;
+mod copy_docker_image;
+pub use copy_docker_image::*;
 mod create_docker_client;
 mod create_regclient_client;
 mod docker_config_loader;
@@ -38,7 +40,7 @@ mod generate_docker_image_name;
 pub use generate_docker_image_name::*;
 mod tag_and_push_image;
 pub use tag_and_push_image::*;
+mod copy_existing_image_tag;
 mod tag_and_push_images;
 mod tar_build_context;
-
 pub use tar_build_context::*;
