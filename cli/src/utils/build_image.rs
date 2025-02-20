@@ -19,14 +19,14 @@ use std::sync::{Arc, Mutex};
 /// A `Result` indicating success or failure of the build process.
 pub async fn build_image(
     docker: &Docker,
-    params: Arc<BuildDockerImageParams>,
-    image_hash: String,
+    params: &BuildDockerImageParams,
+    image_hash: &str,
     build_log: Arc<Mutex<BuildLog>>,
 ) -> Result<String> {
     // Create the build context tarball in a blocking task
     let build_context = {
         let build_log = Arc::clone(&build_log);
-        let params_clone = Arc::clone(&params);
+        let params_clone = Arc::from(params.clone());
         tokio::task::spawn_blocking(move || {
             // Lock the Mutex to access the BuildLog
             let mut build_log = build_log.lock().unwrap();

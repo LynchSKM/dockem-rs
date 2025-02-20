@@ -17,7 +17,7 @@ use oci_client::{Client as RegistryClient, Reference};
 pub async fn check_manifest_head(
     tag: &str,
     reference: Reference,
-    registry_client: RegistryClient,
+    registry_client: &RegistryClient,
 ) -> bool {
     println!("Checking for the image hash {} on the registry.", tag);
     // Use anonymous here because the client should already be authenticated.
@@ -25,7 +25,7 @@ pub async fn check_manifest_head(
         .pull_image_manifest(&reference, &RegistryAuth::Anonymous)
         .await
     {
-        Ok(manifest) => true,
+        Ok(_manifest) => true,
         Err(error) => {
             eprintln!(
                 "The image hash {} does not exist on the registry or we were unable to pull it.",

@@ -22,7 +22,7 @@ pub async fn tag_and_push_new_images(
     params: &BuildDockerImageParams,
     version: &str,
     local_tag: &str,
-    credentials: DockerCredentials,
+    credentials: &DockerCredentials,
     build_log: &mut BuildLog,
 ) -> Result<(), BollardError> {
     // Push to versioned tags (e.g., `tag-version`)
@@ -31,7 +31,7 @@ pub async fn tag_and_push_new_images(
         let target_image_name =
             generate_docker_image_name(&params.registry, &params.image_name, &version_tag);
         println!("Pushing the image to the new tag: {}", target_image_name);
-        tag_and_push_image(docker, local_tag, &target_image_name, credentials.clone()).await?;
+        tag_and_push_image(docker, local_tag, &target_image_name, &credentials).await?;
         build_log.output_tags.push(target_image_name);
     }
 
@@ -45,13 +45,7 @@ pub async fn tag_and_push_new_images(
             so the image will be deployed to the main version: {}",
             main_version_image_name
         );
-        tag_and_push_image(
-            docker,
-            local_tag,
-            &main_version_image_name,
-            credentials.clone(),
-        )
-        .await?;
+        tag_and_push_image(docker, local_tag, &main_version_image_name, &credentials).await?;
         build_log.output_tags.push(main_version_image_name);
     }
 
@@ -63,7 +57,7 @@ pub async fn tag_and_push_new_images(
             "You have selected the --latest flag, so the image will be deployed to the latest tag: {}",
             latest_image_name
         );
-        tag_and_push_image(docker, local_tag, &latest_image_name, credentials.clone()).await?;
+        tag_and_push_image(docker, local_tag, &latest_image_name, &credentials).await?;
         build_log.output_tags.push(latest_image_name);
     }
 
@@ -75,13 +69,7 @@ pub async fn tag_and_push_new_images(
             "You have selected the --main-version flag, so the image will be deployed to the main version: {}",
             main_version_image_name
         );
-        tag_and_push_image(
-            docker,
-            local_tag,
-            &main_version_image_name,
-            credentials.clone(),
-        )
-        .await?;
+        tag_and_push_image(docker, local_tag, &main_version_image_name, &credentials).await?;
         build_log.output_tags.push(main_version_image_name);
     }
 

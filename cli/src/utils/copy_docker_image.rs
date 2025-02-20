@@ -40,7 +40,7 @@ pub async fn copy_docker_image(
             .context("Failed to pull source image manifest")?;
 
         // Check if destination image already exists and has the same digest
-        if let Ok((dest_manifest, destination_digest_hash)) =
+        if let Ok((_dest_manifest, destination_digest_hash)) =
             registry_client.pull_manifest(&dest_reference, cred).await
         {
             if source_digest_hash == destination_digest_hash {

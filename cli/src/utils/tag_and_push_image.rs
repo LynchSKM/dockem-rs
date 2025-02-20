@@ -19,7 +19,7 @@ pub async fn tag_and_push_image(
     docker: &Docker,
     from_image: &str,
     to_image: &str,
-    credentials: DockerCredentials,
+    credentials: &DockerCredentials,
 ) -> Result<(), BollardError> {
     // Split `to_image` into repo and tag
     let (repo, tag) = match to_image.split_once(':') {
@@ -40,7 +40,7 @@ pub async fn tag_and_push_image(
         tag,
         ..Default::default()
     };
-    let mut push_stream = docker.push_image(repo, Some(push_options), Some(credentials));
+    let mut push_stream = docker.push_image(repo, Some(push_options), Some(credentials.clone()));
 
     // Process the push output
     while let Some(output) = push_stream.next().await {
