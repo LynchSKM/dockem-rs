@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.95"
 bollard = "0.18.1"
-clap = "4.5.30"
+clap = { version = "4.5.30", features = ["derive"] }
 flate2 = "1.0.35"
 merkle_hash = "3.7.0"
 oci-client = "0.14.0"
@@ -14,7 +14,7 @@ serde_json = "1.0.138"
 serde = { version = "1.0.217", features = ["derive"] }
 rayon = "1.10.0"
 tar = "0.4.43"
-tokio = "1.43.0"
+tokio = { version = "1.43.0", features = ["rt", "rt-multi-thread", "macros"] }
 futures-util = "0.3.31"
 bytes = "1.10.0"
 
