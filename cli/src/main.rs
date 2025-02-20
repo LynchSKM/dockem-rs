@@ -2,7 +2,7 @@ mod cli;
 mod utils;
 
 use anyhow::Result;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use std::sync::Arc;
 
 #[derive(Parser)]
@@ -13,7 +13,7 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Parser)]
+#[derive(Subcommand)]
 enum Commands {
     Build(BuildArgs),
 }
