@@ -26,6 +26,7 @@ mod os_open;
 pub use os_open::*;
 
 mod build_docker_image;
+pub use build_docker_image::*;
 mod build_docker_image_params;
 pub use build_docker_image_params::*;
 mod build_image;
