@@ -19,73 +19,78 @@ use tokio::task;
 ///
 /// # Returns
 /// * `BuildLog` containing metadata about the build process.
-pub async fn build_docker_image(mut params: BuildDockerImageParams) -> Result<BuildLog> {
+pub async fn build_docker_image(params: Arc<BuildDockerImageParams>) -> Result<BuildLog> {
     let mut build_log = BuildLog::default();
 
-    // Filter out empty tags
-    remove_empty_strings(&mut params.tag);
-    let docker_username = params
-        .docker_username
-        .unwrap_or_else(|| "".parse().unwrap());
-    let docker_password = params
-        .docker_password
-        .unwrap_or_else(|| "".parse().unwrap());
+    // Create a cleaned version of the parameters
+    let cleaned_params = {
+        let mut params_clone = (*params).clone();
+        remove_empty_strings(&mut params_clone.tag);
+        params_clone
+    };
+
+    // Use the cleaned parameters for the rest of the function
+    let docker_username = cleaned_params.docker_username.as_deref().unwrap_or("");
+    let docker_password = cleaned_params.docker_password.as_deref().unwrap_or("");
 
     // Compute overall hash in a blocking thread
-    let watch_file_and_dir_hash = task::spawn_blocking(move || -> Result<String> {
-        let mut hash_accumulator = String::new();
+    let watch_file_and_dir_hash = task::spawn_blocking({
+        let cleaned_params = cleaned_params.clone();
+        move || -> Result<String> {
+            let mut hash_accumulator = String::new();
 
-        // Hash watch files
-        if let Some(watch_files) = &params.watch_file {
-            hash_accumulator.push_str(&hash_watch_files(watch_files)?);
+            if let Some(watch_files) = &cleaned_params.watch_file {
+                hash_accumulator.push_str(&hash_watch_files(watch_files)?);
+            }
+
+            if let Some(watch_dirs) = &cleaned_params.watch_directory {
+                hash_accumulator.push_str(&hash_watch_directories(watch_dirs)?);
+            }
+
+            if !cleaned_params.ignore_build_directory {
+                hash_accumulator.push_str(&hash_directory(&cleaned_params.directory)?);
+            }
+
+            hash_accumulator.push_str(&hash_file(&cleaned_params.dockerfile_path)?);
+            Ok(hash_string(&hash_accumulator))
         }
-
-        // Hash watch directories
-        if let Some(watch_dirs) = &params.watch_directory {
-            hash_accumulator.push_str(&hash_watch_directories(watch_dirs)?);
-        }
-
-        // Hash the build directory if not ignored
-        if !params.ignore_build_directory {
-            hash_accumulator.push_str(&hash_directory(&params.directory)?);
-        }
-
-        // Hash the Dockerfile
-        hash_accumulator.push_str(&hash_file(&params.dockerfile_path)?);
-
-        // Final hash for the image
-        Ok(hash_string(&hash_accumulator))
     })
     .await
-    .context("Failed to compute overall hash")?;
-    let overall_hash = watch_file_and_dir_hash?.clone().as_str();
-    build_log.image_hash = overall_hash.parse()?;
+    .context("Failed to compute overall hash")??;
+    build_log.image_hash = watch_file_and_dir_hash.clone();
 
     // Extract version from version file
-    let extract_version_result = task::spawn_blocking(move || -> Result<String> {
-        Ok(extract_version(&build_log.image_hash)?)
+    let version = task::spawn_blocking({
+        let image_hash = build_log.image_hash.clone(); // Clone image_hash to avoid moving it
+        move || -> Result<String> { Ok(extract_version(&image_hash)?) }
     })
     .await
-    .context(format!(
-        "Failed to extract version from {}",
-        params.version_file
-    ))?;
-    let version = extract_version_result?.as_str().clone();
-    build_log.version = version.to_string();
+    .context("Failed to extract version from file".to_string())??; // Handle JoinError and Result
+    build_log.version = version.clone();
 
     // Generate the hashed image name
-    let image_name =
-        generate_docker_image_name(&params.registry, &params.image_name, &overall_hash);
+    let image_name = generate_docker_image_name(
+        &cleaned_params.registry,
+        &cleaned_params.image_name,
+        &build_log.image_hash,
+    );
     build_log.hashed_image_name = image_name.clone();
 
-    let (registry_client, reference) = create_regclient_client(
-        &params.registry,
+    let (registry_client, reference) = match create_regclient_client(
+        &cleaned_params.registry,
         &docker_username,
         &docker_password,
         &image_name,
         &mut build_log,
     )
-    .await?;
+    .await
+    {
+        Ok((registry_client, reference)) => (registry_client, reference),
+        Err(e) => {
+            eprintln!("Failed to create registry client: {}", e);
+            return Err(anyhow!("Failed to create registry client"));
+        }
+    };
 
     // Check if image already exists
     if check_manifest_head(&image_name, reference, &registry_client).await {
@@ -94,7 +99,7 @@ pub async fn build_docker_image(mut params: BuildDockerImageParams) -> Result<Bu
             image_name
         );
         copy_existing_image_tag(
-            &params,
+            &cleaned_params,
             &version,
             &image_name,
             &registry_client,
@@ -112,7 +117,7 @@ pub async fn build_docker_image(mut params: BuildDockerImageParams) -> Result<Bu
         let (docker_client, docker_credentials) = create_docker_client(
             Some(docker_username),
             Some(docker_password),
-            &params.registry,
+            &cleaned_params.registry,
         )
         .await
         .map_err(|error| anyhow!(error.to_string()))?;
@@ -120,9 +125,9 @@ pub async fn build_docker_image(mut params: BuildDockerImageParams) -> Result<Bu
         // Build the image
         let local_tag = build_image(
             &docker_client,
-            Arc::new(params),
-            &overall_hash,
-            Arc::new(Mutex::new(build_log)),
+            &cleaned_params,
+            &build_log.image_hash,
+            Arc::new(Mutex::new(build_log.clone())), // Clone build_log to avoid moving it
         )
         .await?;
         build_log.local_tag = local_tag.clone();
@@ -136,7 +141,7 @@ pub async fn build_docker_image(mut params: BuildDockerImageParams) -> Result<Bu
         // Tag and push additional images
         tag_and_push_new_images(
             &docker_client,
-            &params,
+            &cleaned_params,
             &version,
             &local_tag,
             &docker_credentials,
@@ -144,6 +149,5 @@ pub async fn build_docker_image(mut params: BuildDockerImageParams) -> Result<Bu
         )
         .await?;
     }
-
     Ok(build_log)
 }

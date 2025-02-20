@@ -25,7 +25,7 @@ pub async fn check_manifest_head(
         .pull_image_manifest(&reference, &RegistryAuth::Anonymous)
         .await
     {
-        Ok(manifest) => true,
+        Ok(_manifest) => true,
         Err(error) => {
             eprintln!(
                 "The image hash {} does not exist on the registry or we were unable to pull it.",

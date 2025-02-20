@@ -15,7 +15,7 @@ use std::io::Read;
 pub fn extract_version(version_file_path: &str) -> Result<String, io::Error> {
     // Open the version file
     let mut version_file = os_open(version_file_path).map_err(|err| {
-        format!(
+        eprintln!(
             "Failed to open version file '{}': {}",
             version_file_path, err
         );
@@ -25,7 +25,7 @@ pub fn extract_version(version_file_path: &str) -> Result<String, io::Error> {
     // Read the file content into a byte vector
     let mut bytes = Vec::new();
     version_file.read_to_end(&mut bytes).map_err(|err| {
-        format!(
+        eprintln!(
             "Failed to read version file '{}': {}",
             version_file_path, err
         );

@@ -24,16 +24,16 @@ use bollard::Docker;
 /// or attempt to load credentials from the Docker configuration file (`~/.docker/config.json`).
 /// If no credentials are provided, it tries to fetch them from the `auths` field in the Docker config.
 pub async fn create_docker_client(
-    username: Option<String>,
-    password: Option<String>,
+    username: Option<&str>,
+    password: Option<&str>,
     registry_name: &str,
 ) -> Result<(Docker, DockerCredentials), Box<dyn std::error::Error>> {
     // Check if both username and password are provided
     if let (Some(user), Some(pass)) = (username, password) {
         // If credentials are provided, create a Docker client with the specified auth
         let auth = DockerCredentials {
-            username: Some(user),
-            password: Some(pass),
+            username: Some(user.to_string()),
+            password: Some(pass.to_string()),
             auth: None,
             email: None,
             serveraddress: Some(registry_name.to_string()),

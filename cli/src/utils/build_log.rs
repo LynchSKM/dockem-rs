@@ -1,6 +1,6 @@
 /// This struct is used to save the process of the build and any variables as well.
 /// It is used in testing to ensure that the expected outcomes are met.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct BuildLog {
     pub custom_dockerfile: bool,
     pub custom_host: bool,

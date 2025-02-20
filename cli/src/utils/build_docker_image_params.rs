@@ -1,5 +1,5 @@
 /// This struct is used to save CLI argument values passed into the program.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BuildDockerImageParams {
     pub directory: String,
     pub docker_password: Option<String>,
