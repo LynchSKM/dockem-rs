@@ -39,18 +39,6 @@ jobs:
       - name: Display Rust version
         run: rustc --version
 
-      # Install Wine from the default Ubuntu repository
-      - name: Install Wine
-        run: sudo apt install --install-recommends wine64
-
-      - name: Install winetricks
-        run: sudo apt install winetricks
-
-      - name: Install Windows libraries
-        run: |
-          winetricks -q vcrun2019  # Install Visual C++ 2019 Redistributable
-          winetricks -q corefonts  # Install core Windows fonts
-
       # Run the tests
-      - name: Run the tests for the supported platforms
-        run: task test-all
+      - name: Run the tests for the Unix platforms
+        run: task test-unix

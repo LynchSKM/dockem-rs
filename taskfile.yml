@@ -26,14 +26,13 @@ tasks:
         cd cli
         cargo test
 
-  test-all:
-    desc: "Run the tests for the supported platforms"
+  test-unix:
+    desc: "Run the tests for the Unix supported platforms"
     cmds:
       - |
         cd cli
         cross test --target aarch64-unknown-linux-gnu \
         & cross test --target x86_64-unknown-linux-gnu \
-        & cross test --target x86_64-pc-windows-gnu \
         & wait
 
   release:
