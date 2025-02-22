@@ -3,6 +3,10 @@ name = "cli"
 version = "0.0.0"
 edition = "2021"
 
+[[bin]]
+name = "dockem-rs"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0.95"
 bollard = "0.18.1"
