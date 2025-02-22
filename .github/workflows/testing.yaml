@@ -39,6 +39,17 @@ jobs:
       - name: Display Rust version
         run: rustc --version
 
+      - name: Add Wine repository
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E073E82C4E04
+          echo 'deb https://dl.winehq.org/wine-builds/ubuntu focal main' | sudo tee /etc/apt/sources.list.d/winehq.list
+
+      - name: Update package list
+        run: sudo apt update
+
+      - name: Install Wine
+        run: sudo apt install --install-recommends wine-stable
+
       # Run the tests
       - name: Run the tests for the supported platforms
         run: task test-all
