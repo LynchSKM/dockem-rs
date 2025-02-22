@@ -32,8 +32,8 @@ struct BuildArgs {
     #[arg(short, long, default_value = "./package.json")]
     version_file: String,
 
-    #[arg(short, long)]
-    registry: Option<String>,
+    #[arg(short, long, default_value = "docker.io")]
+    registry: String,
 
     #[arg(short, long)]
     tag: Vec<String>,
@@ -77,7 +77,7 @@ async fn main() -> Result<()> {
                 dockerfile_path: args.dockerfile_path,
                 image_name: args.image_name,
                 version_file: args.version_file,
-                registry: args.registry.unwrap_or("".parse()?),
+                registry: args.registry,
                 tag: args.tag,
                 docker_username: args.docker_username,
                 docker_password: args.docker_password,

@@ -2,7 +2,7 @@ use clap::{Arg, ArgAction, Command};
 
 /// Builds the CLI structure using `clap`.
 pub fn build_cli() -> Command {
-    Command::new("dockem")
+    Command::new("dockem-rs")
         .about("Build Docker images only when changes are detected")
         .version(env!("CARGO_PKG_VERSION"))
         .subcommand(
@@ -53,6 +53,7 @@ pub fn build_cli() -> Command {
                         .short('r')
                         .long("registry")
                         .value_name("REGISTRY")
+                        .default_value("docker.io")
                         .help("The registry that should be used when pulling/pushing the image, Dockerhub is used by default"),
                 )
                 .arg(
@@ -81,7 +82,7 @@ pub fn build_cli() -> Command {
                     Arg::new("latest")
                         .short('l')
                         .long("latest")
-                        .action(ArgAction::SetTrue)
+                        .action(ArgAction::SetFalse)
                         .help("Whether to push the latest tag with this image"),
                 )
                 .arg(
