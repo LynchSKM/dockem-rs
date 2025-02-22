@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.0.2](https://github.com/LynchSKM/dockem-rs/compare/v1.0.1...v1.0.2) (2025-02-22)
+
+
+### Bug Fixes
+
+* **scripts:** fix incorrect executable name in scripts ([1fdb519](https://github.com/LynchSKM/dockem-rs/commit/1fdb519e7a054048f7926fe9d310a85083446634))
+
 ### [1.0.1](https://github.com/LynchSKM/dockem-rs/compare/v1.0.0...v1.0.1) (2025-02-22)
 
 
