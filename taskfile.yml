@@ -93,7 +93,11 @@ tasks:
           if command -v cross &> /dev/null; then
             # Use `cross` if installed
             cross build --release --target "$platform" --bin "dockem-rs"
-            mv "./target/$platform/release/dockem-rs" "../release/$output_name"
+            if [ "$os_name" = "windows" ]; then
+              mv "./target/$platform/release/dockem-rs.exe" "../release/$output_name"
+            else
+              mv "./target/$platform/release/dockem-rs" "../release/$output_name"
+            fi
           else
             # Fall back to `cargo` if `cross` is not installed
             cargo build --release --target "$platform" --bin "dockem-rs" --target-dir "./target"
