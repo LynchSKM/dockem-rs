@@ -32,5 +32,5 @@ latest_tag=$(echo $latest_url | grep -oP "[0-9]+\.[0-9]+\.[0-9]+$")
 echo "Latest tag is $latest_tag"
 
 # Now we download the binary
-curl -L -o dockem "https://github.com/LynchSKM/dockem-rs/releases/download/v$latest_tag/dockem-rs-v$latest_tag-$platform"
+curl -L -o dockem-rs "https://github.com/LynchSKM/dockem-rs/releases/download/v$latest_tag/dockem-rs-v$latest_tag-$platform"
 chmod +x dockem-rs
