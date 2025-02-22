@@ -19,12 +19,21 @@ tasks:
         cd cli
         cargo build
 
-  test:
-    desc: "Run the tests"
+  test-local:
+    desc: "Run the tests for the supported platform on the current machine"
     cmds:
       - |
         cd cli
         cargo test
+
+  test-unix:
+    desc: "Run the tests for the Unix supported platforms"
+    cmds:
+      - |
+        cd cli
+        cross test --target aarch64-unknown-linux-gnu \
+        & cross test --target x86_64-unknown-linux-gnu \
+        & wait
 
   release:
     desc: "Run a cargo release from develop to main using git flow"
@@ -89,7 +98,7 @@ tasks:
         
           echo "Building release/$output_name for $platform..."
         
-          # Build the binary
+          # Build the binary in the background
           if command -v cross &> /dev/null; then
             # Use `cross` if installed
             cross build --release --target "$platform" --bin "dockem-rs"
@@ -106,7 +115,7 @@ tasks:
         
           # Check if the build succeeded
           if [ $? -ne 0 ]; then
-            echo "An error has occurred! Aborting."
+            echo "An error has occurred while building for $platform! Aborting."
             exit 1
           fi
         done
