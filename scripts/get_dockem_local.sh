@@ -6,15 +6,15 @@ arch=$(uname -m)
 
 if [[ "$os" == "linux" ]]; then
   if [[ "$arch" == "x86_64" ]]; then
-    platform="linux-amd64"
+    platform="linux-x86_64"
   elif [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
-    platform="linux-arm64"
+    platform="linux-aarch64"
   else
     platform="linux-$arch"
   fi
 elif [[ "$os" == "darwin" ]]; then
   if [[ "$arch" == "arm64" ]]; then
-    platform="macOS-arm64"
+    platform="macOS-aarch64"
   else
     platform="macOS-$arch"
   fi
