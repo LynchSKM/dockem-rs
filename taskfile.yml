@@ -98,7 +98,8 @@ tasks:
         
           echo "Building release/$output_name for $platform..."
         
-          # Build the binary
+        # Build the binary in the background
+        (
           if command -v cross &> /dev/null; then
             # Use `cross` if installed
             cross build --release --target "$platform" --bin "dockem-rs"
@@ -115,9 +116,13 @@ tasks:
         
           # Check if the build succeeded
           if [ $? -ne 0 ]; then
-            echo "An error has occurred! Aborting."
+            echo "An error has occurred while building for $platform! Aborting."
             exit 1
           fi
+        ) &
         done
+        
+        # Wait for all background processes to finish
+        wait
         
         echo "All builds completed successfully!"
