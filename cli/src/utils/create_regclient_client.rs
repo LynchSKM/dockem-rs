@@ -9,7 +9,7 @@ use std::str::FromStr;
 /// Creates an OCI distribution client and authenticates with the specified registry.
 ///
 /// # Arguments
-/// * `registry` - The registry URL. E.g <AWS_ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com
+/// * `registry` - The registry URL. E.g <AWS_ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com, docker.io
 /// * `username` - The username for authentication.
 /// * `password` - The password for authentication.
 /// * `docker_image_name` - The name of the image in the registry in this format `org/image-name:hash`
@@ -25,6 +25,7 @@ pub async fn create_regclient_client(
     build_log: &mut BuildLog,
 ) -> Result<(Client, Reference), Box<dyn error::Error>> {
     let mut custom_host = false;
+    let default_dockerhub_registry_for_client = "docker.io";
 
     if !registry.is_empty() {
         build_log.docker_registry = Some(registry.to_string());
@@ -43,7 +44,7 @@ pub async fn create_regclient_client(
 
     if custom_host && registry.is_empty() {
         // Use Docker default registry if only authentication details are provided
-        build_log.docker_registry = Some("index.docker.io".to_string());
+        build_log.docker_registry = Some(default_dockerhub_registry_for_client.to_string());
     }
 
     build_log.custom_host = custom_host;
@@ -64,6 +65,7 @@ pub async fn create_regclient_client(
 
     // Attempt authentication with the registry
     // Construct a reference to an image in the registry
+    print!("Creating registry client {} ", docker_image_name);
     let reference = Reference::from_str(&docker_image_name)?;
 
     // Authenticate to ensure the client is ready for use
