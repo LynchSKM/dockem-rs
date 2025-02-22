@@ -8,6 +8,7 @@ copy the tag across on the registry which is much faster than pulling and pushin
 new image tag.
 
 [![Build Status](https://github.com/LynchSKM/dockem-rs/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/LynchSKM/dockem-rs/actions/workflows/build.yaml)
+[![Unit Tests](https://github.com/LynchSKM/dockem-rs/actions/workflows/testing.yaml/badge.svg?branch=main)](https://github.com/LynchSKM/dockem-rs/actions/workflows/testing.yaml)
 
 ## Development
 
