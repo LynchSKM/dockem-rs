@@ -2,7 +2,6 @@ use crate::utils::{tar_build_context, BuildDockerImageParams, BuildLog};
 use anyhow::{anyhow, Result};
 use bollard::image::BuildImageOptions;
 use bollard::Docker;
-use bytes::Bytes;
 use futures_util::stream::StreamExt;
 use std::sync::{Arc, Mutex};
 
@@ -49,10 +48,11 @@ pub async fn build_image(
     };
 
     // Build the image
+    println!("Building image: {}", local_tag);
     let mut build_stream = docker.build_image(
         build_options,
         None,
-        Some(Bytes::from(build_context.tarball)), // Convert Vec<u8> to Bytes
+        Some(build_context.tarball.into()), // Convert Vec<u8> to Bytes
     );
 
     // Process the build output
