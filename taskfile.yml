@@ -39,14 +39,20 @@ tasks:
     desc: "Run a cargo release from develop to main using git flow"
     cmds:
       - |
+        cd cli
         cargo set-version {{.NEXT_VERSION}}
+        git commit -am "chore(release): update cargo version"
+        cd ../
         npx --yes entro-version release --main-branch-name=main
 
   release-major:
     desc: "Run a major release from develop to main using git flow"
     cmds:
       - |
+        cd cli
         cargo set-version {{.NEXT_MAJOR_VERSION}}
+        git commit -am "chore(release): update cargo version"
+        cd ../
         npx --yes entro-version release --main-branch-name=main --commit-and-tag-version-flag="--release-as=major"
 
   build-binary:
