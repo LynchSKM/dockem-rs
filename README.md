@@ -57,17 +57,17 @@ If you're running an x86_64 Linux system and don't want the hassle of figuring t
 you can use the quick install script buy running the following in terminal.
 
 ```shell
-wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.0.0/dockem-v1.0.0-linux-x86_64
-chmod 755 dockem-v1.0.0-linux-x86_64
-sudo mv ./dockem-v1.0.0-linux-x86_64 /usr/local/bin/dockem
+wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.0.2/dockem-v1.0.2-linux-x86_64
+chmod 755 dockem-v1.0.2-linux-x86_64
+sudo mv ./dockem-v1.0.2-linux-x86_64 /usr/local/bin/dockem
 ```
 
 If you're running an aarch64 Linux system, you can run the following,
 
 ```shell
-wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.0.0/dockem-v1.0.0-linux-aarch64
-chmod 755 dockem-v1.0.0-linux-aarch64
-sudo mv ./dockem-v1.0.0-linux-aarch64 /usr/local/bin/dockem
+wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.0.2/dockem-v1.0.2-linux-aarch64
+chmod 755 dockem-v1.0.2-linux-aarch64
+sudo mv ./dockem-v1.0.2-linux-aarch64 /usr/local/bin/dockem
 ```
 
 ## Usage
