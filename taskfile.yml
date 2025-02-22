@@ -1,5 +1,16 @@
 version: '3'
 
+vars:
+  NEXT_VERSION:
+    sh: npx --yes entro-version version:next
+
+  NEXT_MAJOR_VERSION:
+    sh: npx --yes entro-version version:next --commit-and-tag-version-flag="--release-as=major"
+
+  CURRENT_VERSION:
+    sh: npx --yes entro-version version:get
+
+
 tasks:
   install-deps:
     desc: "Install dependencies"
@@ -7,3 +18,112 @@ tasks:
       - |
         cd cli
         cargo build
+
+  test-local:
+    desc: "Run the tests for the supported platform on the current machine"
+    cmds:
+      - |
+        cd cli
+        cargo test
+
+  test-unix:
+    desc: "Run the tests for the Unix supported platforms"
+    cmds:
+      - |
+        cd cli
+        cross test --target aarch64-unknown-linux-gnu \
+        & cross test --target x86_64-unknown-linux-gnu \
+        & wait
+
+  release:
+    desc: "Run a cargo release from develop to main using git flow"
+    cmds:
+      - |
+        cd cli
+        cargo set-version {{.NEXT_VERSION}}
+        git commit -am "chore(release): update cargo version"
+        cd ../
+        npx --yes entro-version release --main-branch-name=main
+
+  release-major:
+    desc: "Run a major release from develop to main using git flow"
+    cmds:
+      - |
+        cd cli
+        cargo set-version {{.NEXT_MAJOR_VERSION}}
+        git commit -am "chore(release): update cargo version"
+        cd ../
+        npx --yes entro-version release --main-branch-name=main --commit-and-tag-version-flag="--release-as=major"
+
+  build-binary:
+    desc: "Build the binary"
+    cmds:
+      - |
+        cd cli
+        cargo build --release
+
+  build:
+    desc: "Build the binary - the assumption is that this is done from the main branch"
+    cmds:
+      - |
+        rm -rf ./release
+        version=v{{ .CURRENT_VERSION }}
+        cd cli
+        mkdir -p ../release
+        
+        # Define target platforms
+        platforms=(
+          "aarch64-unknown-linux-gnu"
+          "x86_64-unknown-linux-gnu"
+          "x86_64-pc-windows-gnu"
+        )
+        
+        # Clean the build directory
+        cargo clean
+        
+        # Build for each platform
+        for platform in "${platforms[@]}"; do
+          # Split platform into OS and architecture
+          IFS='-' read -r part1 part2 part3 part4 <<< "$platform"
+          os="$part3"
+          arch="$part1"
+        
+          # Map Rust target names to user-friendly names
+          case "$os" in
+            "apple-darwin") os_name="macOS" ;;
+            "unknown-linux-gnu") os_name="linux" ;;
+            "pc-windows-gnu") os_name="windows" ;;
+            *) os_name="$os" ;;
+          esac
+        
+          # Determine the output binary name
+          output_name="dockem-rs-${version}-${os_name}-${arch}"
+          if [ "$os_name" = "windows" ]; then
+            output_name+=".exe"
+          fi
+        
+          echo "Building release/$output_name for $platform..."
+        
+          # Build the binary in the background
+          if command -v cross &> /dev/null; then
+            # Use `cross` if installed
+            cross build --release --target "$platform" --bin "dockem-rs"
+            if [ "$os_name" = "windows" ]; then
+              mv "./target/$platform/release/dockem-rs.exe" "../release/$output_name"
+            else
+              mv "./target/$platform/release/dockem-rs" "../release/$output_name"
+            fi
+          else
+            # Fall back to `cargo` if `cross` is not installed
+            cargo build --release --target "$platform" --bin "dockem-rs" --target-dir "./target"
+            mv "./target/$platform/release/dockem-rs" "../release/$output_name"
+          fi
+        
+          # Check if the build succeeded
+          if [ $? -ne 0 ]; then
+            echo "An error has occurred while building for $platform! Aborting."
+            exit 1
+          fi
+        done
+        
+        echo "All builds completed successfully!"
