@@ -35,23 +35,23 @@ pub async fn build_docker_image(params: Arc<BuildDockerImageParams>) -> Result<B
 
     // Compute overall hash in a blocking thread
     let watch_file_and_dir_hash = task::spawn_blocking({
-        let cleaned_params = cleaned_params.clone();
+        let cleaned_params_clone = cleaned_params.clone();
         move || -> Result<String> {
             let mut hash_accumulator = String::new();
 
-            if let Some(watch_files) = &cleaned_params.watch_file {
+            if let Some(watch_files) = &cleaned_params_clone.watch_file {
                 hash_accumulator.push_str(&hash_watch_files(watch_files)?);
             }
 
-            if let Some(watch_dirs) = &cleaned_params.watch_directory {
+            if let Some(watch_dirs) = &cleaned_params_clone.watch_directory {
                 hash_accumulator.push_str(&hash_watch_directories(watch_dirs)?);
             }
 
-            if !cleaned_params.ignore_build_directory {
-                hash_accumulator.push_str(&hash_directory(&cleaned_params.directory)?);
+            if !cleaned_params_clone.ignore_build_directory {
+                hash_accumulator.push_str(&hash_directory(&cleaned_params_clone.directory)?);
             }
 
-            hash_accumulator.push_str(&hash_file(&cleaned_params.dockerfile_path)?);
+            hash_accumulator.push_str(&hash_file(&cleaned_params_clone.dockerfile_path)?);
             Ok(hash_string(&hash_accumulator))
         }
     })
@@ -61,8 +61,12 @@ pub async fn build_docker_image(params: Arc<BuildDockerImageParams>) -> Result<B
 
     // Extract version from version file
     let version = task::spawn_blocking({
-        let image_hash = build_log.image_hash.clone(); // Clone image_hash to avoid moving it
-        move || -> Result<String> { Ok(extract_version(&image_hash)?) }
+        let cleaned_params_clone = cleaned_params.clone();
+        println!(
+            "Extracting version from file {}",
+            cleaned_params_clone.version_file
+        );
+        move || -> Result<String> { Ok(extract_version(&cleaned_params_clone.version_file)?) }
     })
     .await
     .context("Failed to extract version from file".to_string())??; // Handle JoinError and Result
@@ -121,6 +125,7 @@ pub async fn build_docker_image(params: Arc<BuildDockerImageParams>) -> Result<B
         )
         .await
         .map_err(|error| anyhow!(error.to_string()))?;
+        println!("Docker client authenticated successfully.");
 
         // Build the image
         let local_tag = build_image(
