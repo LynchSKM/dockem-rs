@@ -25,3 +25,11 @@ bytes = "1.10.0"
 [dev-dependencies]
 tempfile = "3.17.1"
 cargo-modules = "0.22.0"
+
+# See https://github.com/sfackler/rust-openssl/issues/1627
+# and https://docs.rs/openssl/latest/openssl/#vendored
+[target.x86_64-unknown-linux-gnu.dependencies]
+openssl = { version = "0.10.71", features = ["vendored"] }
+
+[target.aarch64-unknown-linux-gnu.dependencies]
+openssl = { version = "0.10.71", features = ["vendored"] }
