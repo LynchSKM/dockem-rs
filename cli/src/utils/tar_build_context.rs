@@ -5,6 +5,7 @@ use flate2::Compression;
 use std::fs::File;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+use tar::{Builder, Header};
 
 /// The result of creating the build context tarball.
 pub struct TarBuildContextResult {
@@ -42,7 +43,7 @@ pub fn tar_build_context(
     }
 
     // Check if the Dockerfile is in a parent directory (e.g., ../Dockerfile)
-    let (dockerfile_path, dockerfile_guard) = if dockerfile_path.starts_with("../") {
+    let (dockerfile_path_buf, dockerfile_guard) = if dockerfile_path.starts_with("../") {
         // Create a temporary Dockerfile in the build context directory
         let temp_dockerfile_path = context_path.join("Dockerfile");
 
@@ -60,30 +61,30 @@ pub fn tar_build_context(
         // Return the relative path to the Dockerfile and the guard
         (temp_dockerfile_path, Some(guard))
     } else {
-        // Normalize the Dockerfile path and ensure it does not escape the context directory
-        let dockerfile_path = context_path.join(dockerfile_path);
-        if !dockerfile_path.starts_with(context_path) {
-            return Err(anyhow!("Dockerfile path escapes the context directory"));
-        }
-        (dockerfile_path, None)
+        // Make sure Dockerfile is in context
+        (dockerfile_path.to_path_buf(), None)
     };
+    println!(
+        "Creating tarball file with dockerfile path {:?}",
+        dockerfile_path_buf
+    );
 
-    let mut tar_builder = tar::Builder::new(Vec::new());
+    let mut tar_builder = Builder::new(Vec::new());
+    let file_permission = 0o644;
 
     // Add the Dockerfile to the tarball
-    let dockerfile_name = dockerfile_path
+    let dockerfile_name = dockerfile_path_buf
         .file_name()
         .ok_or_else(|| anyhow!("Invalid Dockerfile path"))?
         .to_str()
         .ok_or_else(|| anyhow!("Invalid Dockerfile name"))?;
-    let mut dockerfile = File::open(&dockerfile_path)?;
-    let mut dockerfile_contents = Vec::new();
-    io::copy(&mut dockerfile, &mut dockerfile_contents)?;
-    tar_builder.append_data(
-        &mut tar::Header::new_gnu(),
-        dockerfile_name,
-        &dockerfile_contents[..],
-    )?;
+    let mut dockerfile = File::open(&dockerfile_path_buf)?;
+    let mut header = Header::new_gnu();
+    header.set_path(dockerfile_name)?;
+    header.set_size(dockerfile.metadata()?.len());
+    header.set_mode(file_permission); // Set file permissions
+    header.set_cksum();
+    tar_builder.append(&header, &mut dockerfile)?;
 
     // Add the rest of the build context
     for entry in std::fs::read_dir(context_path)? {
@@ -103,9 +104,12 @@ pub fn tar_build_context(
             .ok_or_else(|| anyhow!("Invalid file name"))?;
 
         let mut file = File::open(&path)?;
-        let mut file_contents = Vec::new();
-        io::copy(&mut file, &mut file_contents)?;
-        tar_builder.append_data(&mut tar::Header::new_gnu(), file_name, &file_contents[..])?;
+        let mut header = Header::new_gnu();
+        header.set_path(file_name)?;
+        header.set_size(file.metadata()?.len());
+        header.set_mode(file_permission); // Set file permissions
+        header.set_cksum();
+        tar_builder.append(&header, &mut file)?;
     }
 
     // Finish the tarball
@@ -115,11 +119,12 @@ pub fn tar_build_context(
     let mut gz_encoder = GzEncoder::new(Vec::new(), Compression::default());
     gz_encoder.write_all(&tar_data)?;
     let gz_data = gz_encoder.finish()?;
+    println!("Successfully compressed context into tarball");
 
     // Return the tarball data and the Dockerfile path
     Ok(TarBuildContextResult {
         tarball: gz_data,
-        dockerfile_path: Some(dockerfile_path.strip_prefix(context_path)?.to_path_buf()),
+        dockerfile_path: Some(dockerfile_path_buf.to_path_buf()),
         _dockerfile_guard: dockerfile_guard,
     })
 }
