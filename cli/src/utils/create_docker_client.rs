@@ -41,7 +41,7 @@ pub async fn create_docker_client(
             registrytoken: None,
         };
 
-        let docker = Docker::connect_with_unix_defaults()?;
+        let docker = Docker::connect_with_socket_defaults()?;
         Ok((docker, auth))
     } else {
         // No credentials provided, so we load the Docker config file
@@ -63,7 +63,7 @@ pub async fn create_docker_client(
                 registrytoken: None,
             };
 
-            let docker = Docker::connect_with_unix_defaults()?;
+            let docker = Docker::connect_with_socket_defaults()?;
             Ok((docker, auth))
         } else {
             Err("No valid authentication configuration found.".into())
