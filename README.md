@@ -289,7 +289,7 @@ task build
 #### Supported Platforms
 
 * Linux x86_64
-* Linux aarch64 / Linux AARCH64
+* Linux amd64 / Linux aarch64
 * Windows
 
 I wanted to support Darwin (macOS) Targets, but it seemed like too much effort for now.
