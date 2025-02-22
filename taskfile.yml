@@ -1,5 +1,12 @@
 version: '3'
 
+vars:
+  NEXT_VERSION:
+    sh: npx --yes entro-version version:next
+
+  NEXT_MAJOR_VERSION:
+    sh: npx --yes entro-version version:next --commit-and-tag-version-flag="--release-as=major"
+
 tasks:
   install-deps:
     desc: "Install dependencies"
@@ -17,13 +24,17 @@ tasks:
   release:
     desc: "Run a cargo release from develop to main using git flow"
     cmds:
-      - cargo release minor --execute
+      - |
+        cargo set-version {{.NEXT_VERSION}}
+        npx --yes entro-version release --main-branch-name=main
 
   release-major:
-    desc: "Run a standard release from develop to main using git flow"
+    desc: "Run a major release from develop to main using git flow"
     cmds:
-      - cargo release minor --execute
-
+      - |
+        cargo set-version {{.NEXT_MAJOR_VERSION}}
+        npx --yes entro-version release --main-branch-name=main --commit-and-tag-version-flag="--release-as=major"
+  
   build-binary:
     desc: "Build the binary"
     cmds:
