@@ -7,6 +7,8 @@ been built before, it will just
 copy the tag across on the registry which is much faster than pulling and pushing to the
 new image tag.
 
+[![Build Status](https://github.com/LynchSKM/dockem-rs/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/LynchSKM/dockem-rs/actions/workflows/build.yaml)
+
 ## Development
 
 #### Pre-requisites
