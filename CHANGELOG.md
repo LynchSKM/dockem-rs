@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.0.3](https://github.com/LynchSKM/dockem-rs/compare/v1.0.2...v1.0.3) (2025-02-22)
+
+
+### Bug Fixes
+
+* **build:** add missing openssl dependency in build ([6d89836](https://github.com/LynchSKM/dockem-rs/commit/6d898364c45916bb5a91de510b148bbfbf7002c7))
+
 ### [1.0.2](https://github.com/LynchSKM/dockem-rs/compare/v1.0.1...v1.0.2) (2025-02-22)
 
 
