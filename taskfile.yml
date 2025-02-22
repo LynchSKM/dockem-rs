@@ -20,7 +20,7 @@ tasks:
         cargo build
 
   test-local:
-    desc: "Run the tests for the supported platforms"
+    desc: "Run the tests for the supported platform on the current machine"
     cmds:
       - |
         cd cli
