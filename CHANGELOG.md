@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.0.7](https://github.com/LynchSKM/dockem-rs/compare/v1.0.6...v1.0.7) (2025-02-23)
+
+
+### Bug Fixes
+
+* **build:** attempt to fix error with long directory names by using built-in append_dir_all function and remove println that was printing every file name ([646920f](https://github.com/LynchSKM/dockem-rs/commit/646920fe7342f61f1df597b82c7e89246000f4dc))
+
 ### [1.0.6](https://github.com/LynchSKM/dockem-rs/compare/v1.0.5...v1.0.6) (2025-02-23)
 
 
