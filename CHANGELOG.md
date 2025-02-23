@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.0.4](https://github.com/LynchSKM/dockem-rs/compare/v1.0.3...v1.0.4) (2025-02-23)
+
+
+### Bug Fixes
+
+* **cli:** add missing version command to cli ([0735706](https://github.com/LynchSKM/dockem-rs/commit/0735706927eefc4b3b6de1d203abd489eeabb2e3))
+* **documentation:** update to version 1.0.4 ([f92139b](https://github.com/LynchSKM/dockem-rs/commit/f92139b667d02759a413f821ea0c8cb454c41b0c))
+
 ### [1.0.3](https://github.com/LynchSKM/dockem-rs/compare/v1.0.2...v1.0.3) (2025-02-22)
 
 
