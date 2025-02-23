@@ -4,18 +4,9 @@ use flate2::write::GzEncoder;
 use flate2::Compression;
 use rayon::prelude::*;
 use std::fs::File;
-use std::fs::{self};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
 use tar::{Builder, Header};
-
-/// Represents a file's metadata and content to be added to the tarball.
-struct FileData {
-    header: Header,
-    content: Vec<u8>,
-    is_directory: bool,
-}
 
 /// The result of creating the build context tarball.
 pub struct TarBuildContextResult {
@@ -99,17 +90,8 @@ pub fn tar_build_context(
     header.set_cksum();
     tar_builder.append(&header, &mut dockerfile)?;
 
-    // Collect all files and directories in parallel
-    let files = collect_files(&context_path, &context_path)?;
-
-    // Sequentially add collected files and directories to the tarball
-    for file_data in files {
-        if file_data.is_directory {
-            tar_builder.append(&file_data.header, &mut io::empty())?; // Add an empty reader for directories
-        } else {
-            tar_builder.append(&file_data.header, &file_data.content[..])?;
-        }
-    }
+    // Add the rest of the build context (recursively)
+    tar_builder.append_dir_all(".", &context_path)?;
 
     // Finish the tarball
     let tar_data = tar_builder.into_inner()?;
@@ -131,100 +113,4 @@ pub fn tar_build_context(
         ),
         _dockerfile_guard: dockerfile_guard,
     })
-}
-
-/// Recursively collects files and directories to be added to the tarball in parallel.
-///
-/// This function traverses the directory tree starting from `path` and collects metadata and content
-/// for all files and directories. The results are stored in a `Vec<FileData>`, which can be used to
-/// construct the tarball. The traversal is parallelized using the `rayon` crate for improved
-/// performance on large directories.
-///
-/// # Arguments
-/// * `context_path` - The root path of the build context. All file paths are made relative to this path.
-/// * `path` - The current path to traverse. This can be a file or directory. If it is a directory,
-///            the function will recursively traverse its contents.
-///
-/// # Returns
-/// A `Result<Vec<FileData>>` containing the metadata and content of all files and directories
-/// in the specified path. If an error occurs during traversal, it is returned as an `anyhow::Error`.
-///
-/// # Errors
-/// This function will return an error if:
-/// - The `path` escapes the `context_path` (e.g., due to symbolic links or invalid paths).
-/// - A file or directory cannot be read (e.g., due to permission issues).
-/// - A file name cannot be converted to a valid UTF-8 string.
-fn collect_files(context_path: &Path, path: &Path) -> Result<Vec<FileData>> {
-    let files = Mutex::new(Vec::new());
-    let file_permission = 0o644;
-    let directory_permission = 0o755;
-    if path.is_dir() {
-        if (path == context_path) {
-            // Recursively collect contents of the directory in parallel
-            fs::read_dir(path)?
-                .par_bridge() // Convert to parallel iterator
-                .try_for_each(|entry| -> Result<()> {
-                    let entry = entry?;
-                    let subdir_files = collect_files(context_path, &entry.path())?;
-                    files.lock().unwrap().extend(subdir_files);
-                    Ok(())
-                })?;
-        } else {
-            // Add directory metadata
-            let relative_path = path
-                .strip_prefix(context_path)
-                .map_err(|_| anyhow!("File path escapes the context directory"))?;
-            let file_name = relative_path
-                .to_str()
-                .ok_or_else(|| anyhow!("Invalid file name"))?;
-
-            let mut header = Header::new_gnu();
-            header.set_path(format!("{}/", file_name))?; // Add trailing slash for directories
-            header.set_size(0);
-            header.set_mode(directory_permission); // Set directory permissions
-            header.set_cksum();
-
-            files.lock().unwrap().push(FileData {
-                header,
-                content: Vec::new(), // Directories have no content
-                is_directory: true,
-            });
-
-            // Recursively collect contents of the directory in parallel
-            fs::read_dir(path)?
-                .par_bridge() // Convert to parallel iterator
-                .try_for_each(|entry| -> Result<()> {
-                    let entry = entry?;
-                    let subdir_files = collect_files(context_path, &entry.path())?;
-                    files.lock().unwrap().extend(subdir_files);
-                    Ok(())
-                })?;
-        }
-    } else {
-        // Add file metadata and content
-        let relative_path = path
-            .strip_prefix(context_path)
-            .map_err(|_| anyhow!("File path escapes the context directory"))?;
-        let file_name = relative_path
-            .to_str()
-            .ok_or_else(|| anyhow!("Invalid file name"))?;
-
-        println!("Add file: {} from path: {:?}", file_name, path);
-
-        let mut header = Header::new_gnu();
-        header.set_path(file_name)?;
-        header.set_size(path.metadata()?.len());
-        header.set_mode(file_permission); // Set file permissions
-        header.set_cksum();
-
-        let content = fs::read(path)?; // Read file content
-
-        files.lock().unwrap().push(FileData {
-            header,
-            content,
-            is_directory: false,
-        });
-    }
-
-    Ok(files.into_inner()?)
 }
