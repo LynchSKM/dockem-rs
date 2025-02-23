@@ -115,7 +115,7 @@ essence, you'll just need to add the following to your pipeline,
 
 ```yaml
     - name: Setup Dockem-rs
-      uses: LynchSKM/setup-dockem-rs@v2
+      uses: LynchSKM/setup-dockem-rs@v1
 
     - name: Run Dockem
       run: dockem build --directory=./apps/backend --dockerfile-path=./devops/prod/backend/Dockerfile --image-name=my-repo/backend --tag=stable --main-version
