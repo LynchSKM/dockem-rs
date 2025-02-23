@@ -1,6 +1,6 @@
 # DOCKEM-RS
 
-![Dockem](docs/logo.png)
+![Dockem-RS](docs/logo.png)
 
 A Rust CLI that helps optimise the build process of Docker containers, if the image has
 been built before, it will just
@@ -25,16 +25,15 @@ the registry and you'll be good to go with your new tag.
 
 # Getting Started
 
-This library has been built in `go` in order for me to be able to build binaries for a
+This library has been built in `Rust` in order for me to be able to build binaries for a
 bunch of different platforms. The easiest way to use this would be to go to
 the [Releases Page](https://GitHub.com/LynchSKM/dockem-rs/releases) and download the
-binary
-that suits you.
+binary that suits you.
 
 ## Quick Install
 
 I've created a quick install script that will download the latest version of the binary
-for you. This is still a work in progress and I need to test this on Mac and Windows. If
+for you. This is still a work in progress and I need to test this on Windows. If
 you're running a Linux system, this should work without a hassle. For the other systems, I
 suggest you check out the [Releases Page](https://GitHub.com/LynchSKM/dockem-rs/releases)
 and
@@ -58,7 +57,7 @@ things out,
 you can use the quick installation script by running the following in terminal.
 
 ```shell
-wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.1.1/dockem-v1.1.1-linux-x86_64
+wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.1.1/dockem-rs-v1.1.1-linux-x86_64
 chmod 755 dockem-rs-v1.1.1-linux-x86_64
 sudo mv ./dockem-rs-v1.1.1-linux-x86_64 /usr/local/bin/dockem-rs
 ```
@@ -66,7 +65,7 @@ sudo mv ./dockem-rs-v1.1.1-linux-x86_64 /usr/local/bin/dockem-rs
 If you're running an aarch64/arm64 Linux system, you can run the following,
 
 ```shell
-wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.1.1/dockem-v1.1.1-linux-aarch64
+wget https://GitHub.com/LynchSKM/dockem-rs/releases/download/v1.1.1/dockem-rs-v1.1.1-linux-aarch64
 chmod 755 dockem-rs-v1.1.1-linux-aarch64
 sudo mv ./dockem-rs-v1.1.1-linux-aarch64 /usr/local/bin/dockem-rs
 ```
@@ -117,8 +116,8 @@ essence, you'll just need to add the following to your pipeline,
     - name: Setup Dockem-rs
       uses: LynchSKM/setup-dockem-rs@v1
 
-    - name: Run Dockem
-      run: dockem build --directory=./apps/backend --dockerfile-path=./devops/prod/backend/Dockerfile --image-name=my-repo/backend --tag=stable --main-version
+    - name: Run dockem-rs
+      run: dockem-rs build --directory=./apps/backend --dockerfile-path=./devops/prod/backend/Dockerfile --image-name=my-repo/backend --tag=stable --main-version
 ```
 
 ## Concepts
