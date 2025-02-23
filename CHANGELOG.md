@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.0.6](https://github.com/LynchSKM/dockem-rs/compare/v1.0.5...v1.0.6) (2025-02-23)
+
+
+### Bug Fixes
+
+* **build:** update tar build context to recursively crawl build context folder correctly ([e50fa09](https://github.com/LynchSKM/dockem-rs/commit/e50fa09455ea1ef8b78dc9915a8ceeff9386300e))
+
 ### [1.0.5](https://github.com/LynchSKM/dockem-rs/compare/v1.0.4...v1.0.5) (2025-02-23)
 
 
