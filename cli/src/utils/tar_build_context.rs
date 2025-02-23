@@ -2,11 +2,10 @@ use crate::utils::{BuildDockerImageParams, BuildLog, FileGuard};
 use anyhow::{anyhow, Result};
 use flate2::write::GzEncoder;
 use flate2::Compression;
-use rayon::prelude::*;
 use std::fs::File;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use tar::{Builder, Header};
+use tar::Builder;
 
 /// The result of creating the build context tarball.
 pub struct TarBuildContextResult {
@@ -74,25 +73,8 @@ pub fn tar_build_context(
     );
 
     let mut tar_builder = Builder::new(Vec::new());
-    let file_permission = 0o644;
-
-    // Add the Dockerfile to the tarball
-    let dockerfile_name = dockerfile_path_buf
-        .file_name()
-        .ok_or_else(|| anyhow!("Invalid Dockerfile path"))?
-        .to_str()
-        .ok_or_else(|| anyhow!("Invalid Dockerfile name"))?;
-    let mut dockerfile = File::open(&dockerfile_path_buf)?;
-    let mut header = Header::new_gnu();
-    header.set_path(dockerfile_name)?;
-    header.set_size(dockerfile.metadata()?.len());
-    header.set_mode(file_permission); // Set file permissions
-    header.set_cksum();
-    tar_builder.append(&header, &mut dockerfile)?;
-
     // Add the rest of the build context (recursively)
     tar_builder.append_dir_all(".", &context_path)?;
-
     // Finish the tarball
     let tar_data = tar_builder.into_inner()?;
 
