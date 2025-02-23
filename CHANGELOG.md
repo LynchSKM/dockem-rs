@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.1.0](https://github.com/LynchSKM/dockem-rs/compare/v1.0.7...v1.1.0) (2025-02-23)
+
+
+### Features
+
+* **build:** remove manual dockerfile add of Dockerfile into archive ([547c8a8](https://github.com/LynchSKM/dockem-rs/commit/547c8a8c5605cba1b51baddcd8a34e057cdda2db))
+
 ### [1.0.7](https://github.com/LynchSKM/dockem-rs/compare/v1.0.6...v1.0.7) (2025-02-23)
 
 
