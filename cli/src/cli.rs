@@ -122,4 +122,9 @@ pub fn build_cli() -> Command {
                     $ dockem build --image-name=my-repo/backend --registry=eu.reg.io --docker-username=uname --docker-password=1234 --tag=alpha --tag=test",
                 ),
         )
+        .subcommand(
+            Command::new("version")
+                .about("Prints the version of the application")
+                .long_about("Prints the version of the application as defined in the Cargo.toml file."),
+        )
 }
