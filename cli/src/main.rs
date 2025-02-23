@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand};
 use std::sync::Arc;
 
 #[derive(Parser)]
-#[command(name = "dockem")]
+#[command(name = "dockem-rs")]
 #[command(about = "Build Docker images only when changes are detected", long_about = None)]
 struct Cli {
     #[command(subcommand)]
@@ -16,6 +16,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Build(BuildArgs),
+    Version,
 }
 
 #[derive(Parser)]
@@ -89,6 +90,10 @@ async fn main() -> Result<()> {
             };
 
             utils::build_docker_image(Arc::from(build_params)).await?;
+        }
+        Commands::Version => {
+            // Print the version of the application
+            println!("dockem-rs {}", env!("CARGO_PKG_VERSION"));
         }
     }
 
