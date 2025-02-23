@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.0.5](https://github.com/LynchSKM/dockem-rs/compare/v1.0.4...v1.0.5) (2025-02-23)
+
+
+### Bug Fixes
+
+* **build:** fix issue with copy of dockerfile into build context ([f404461](https://github.com/LynchSKM/dockem-rs/commit/f40446159412fc010606a0778452b28235b2c9ab))
+
 ### [1.0.4](https://github.com/LynchSKM/dockem-rs/compare/v1.0.3...v1.0.4) (2025-02-23)
 
 
