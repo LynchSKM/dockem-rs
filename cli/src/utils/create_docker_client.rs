@@ -1,4 +1,5 @@
 use super::docker_config_loader::DockerConfig;
+use anyhow::{anyhow, Context, Result};
 use bollard::auth::DockerCredentials;
 use bollard::Docker;
 
@@ -27,7 +28,7 @@ pub async fn create_docker_client(
     username: Option<&str>,
     password: Option<&str>,
     registry_name: &str,
-) -> Result<(Docker, DockerCredentials), Box<dyn std::error::Error>> {
+) -> Result<(Docker, DockerCredentials)> {
     // Check if both username and password are provided
     if let (Some(user), Some(pass)) = (username, password) {
         // If credentials are provided, create a Docker client with the specified auth
@@ -41,11 +42,13 @@ pub async fn create_docker_client(
             registrytoken: None,
         };
 
-        let docker = Docker::connect_with_socket_defaults()?;
+        let docker = Docker::connect_with_socket_defaults()
+            .with_context(|| "Failed to connect to Docker using socket defaults")?;
         Ok((docker, auth))
     } else {
         // No credentials provided, so we load the Docker config file
-        let docker_config = DockerConfig::load(None)?;
+        let docker_config =
+            DockerConfig::load(None).with_context(|| "Failed to load Docker configuration file")?;
 
         // Attempt to get the auth config for the specified registry (or default registry)
         let auth_config = docker_config
@@ -63,10 +66,14 @@ pub async fn create_docker_client(
                 registrytoken: None,
             };
 
-            let docker = Docker::connect_with_socket_defaults()?;
+            let docker = Docker::connect_with_socket_defaults()
+                .with_context(|| "Failed to connect to Docker using socket defaults")?;
             Ok((docker, auth))
         } else {
-            Err("No valid authentication configuration found.".into())
+            Err(anyhow!(
+                "No valid authentication configuration found for registry '{}'",
+                registry_name
+            ))
         }
     }
 }
