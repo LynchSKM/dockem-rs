@@ -13,7 +13,7 @@ on:
       - develop
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -25,9 +25,6 @@ jobs:
             arch: aarch64
           - target: x86_64-unknown-linux-gnu
             os_name: linux
-            arch: x86_64
-          - target: x86_64-pc-windows-gnu
-            os_name: windows
             arch: x86_64
     steps:
       - uses: actions/checkout@v4
@@ -50,16 +47,43 @@ jobs:
         run: |
           mkdir -p release
           version="v${{ steps.version.outputs.version }}"
-          artifact="dockem-rs-${version}-${{ matrix.os_name }}-${{ matrix.arch }}"
-          if [ "${{ matrix.os_name }}" = "windows" ]; then
-            mv "cli/target/${{ matrix.target }}/release/dockem-rs.exe" "release/${artifact}.exe"
-          else
-            mv "cli/target/${{ matrix.target }}/release/dockem-rs" "release/${artifact}"
-          fi
+          mv "cli/target/${{ matrix.target }}/release/dockem-rs" "release/dockem-rs-${version}-${{ matrix.os_name }}-${{ matrix.arch }}"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: dockem-rs-${{ matrix.os_name }}-${{ matrix.arch }}
+          path: release/
+          if-no-files-found: error
+
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Get version from Cargo.toml
+        id: version
+        shell: bash
+        run: echo "version=$(grep '^version' cli/Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')" >> "$GITHUB_OUTPUT"
+
+      - name: Build for Windows
+        working-directory: cli
+        run: cargo build --release --bin dockem-rs
+
+      - name: Prepare artifact
+        shell: bash
+        run: |
+          mkdir -p release
+          version="v${{ steps.version.outputs.version }}"
+          mv "cli/target/release/dockem-rs.exe" "release/dockem-rs-${version}-windows-x86_64.exe"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dockem-rs-windows-x86_64
           path: release/
           if-no-files-found: error
