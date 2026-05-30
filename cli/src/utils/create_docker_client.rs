@@ -29,14 +29,41 @@ pub async fn create_docker_client(
     password: Option<&str>,
     registry_name: &str,
 ) -> Result<(Docker, DockerCredentials)> {
-    // Check if both username and password are provided
+    // Check if both username and password are provided and non-empty
     if let (Some(user), Some(pass)) = (username, password) {
-        // If credentials are provided, create a Docker client with the specified auth
+        if !user.is_empty() && !pass.is_empty() {
+            let auth = DockerCredentials {
+                username: Some(user.to_string()),
+                password: Some(pass.to_string()),
+                auth: None,
+                email: None,
+                serveraddress: Some(registry_name.to_string()),
+                identitytoken: None,
+                registrytoken: None,
+            };
+
+            let docker = Docker::connect_with_socket_defaults()
+                .with_context(|| "Failed to connect to Docker using socket defaults")?;
+            return Ok((docker, auth));
+        }
+    }
+
+    // No valid credentials provided, so we load the Docker config file
+    let docker_config =
+        DockerConfig::load(None).with_context(|| "Failed to load Docker configuration file")?;
+
+    // Attempt to get the auth config for the specified registry (or default registry)
+    let auth_config = docker_config
+        .get_auth_config_for_registry(registry_name)
+        .or_else(|| docker_config.get_auth_config_for_registry("docker.io"))
+        .or_else(|| docker_config.get_auth_config_for_registry("https://index.docker.io/v1/"));
+
+    if let Some(auth_config) = auth_config {
         let auth = DockerCredentials {
-            username: Some(user.to_string()),
-            password: Some(pass.to_string()),
-            auth: None,
-            email: None,
+            username: None,
+            password: None,
+            auth: auth_config.auth,
+            email: auth_config.email,
             serveraddress: Some(registry_name.to_string()),
             identitytoken: None,
             registrytoken: None,
@@ -46,34 +73,9 @@ pub async fn create_docker_client(
             .with_context(|| "Failed to connect to Docker using socket defaults")?;
         Ok((docker, auth))
     } else {
-        // No credentials provided, so we load the Docker config file
-        let docker_config =
-            DockerConfig::load(None).with_context(|| "Failed to load Docker configuration file")?;
-
-        // Attempt to get the auth config for the specified registry (or default registry)
-        let auth_config = docker_config
-            .get_auth_config_for_registry(&registry_name)
-            .or_else(|| docker_config.get_auth_config_for_registry("docker.io"));
-
-        if let Some(auth_config) = auth_config {
-            let auth = DockerCredentials {
-                username: None,
-                password: None,
-                auth: auth_config.auth,
-                email: auth_config.email,
-                serveraddress: Some(registry_name.to_string()),
-                identitytoken: None,
-                registrytoken: None,
-            };
-
-            let docker = Docker::connect_with_socket_defaults()
-                .with_context(|| "Failed to connect to Docker using socket defaults")?;
-            Ok((docker, auth))
-        } else {
-            Err(anyhow!(
-                "No valid authentication configuration found for registry '{}'",
-                registry_name
-            ))
-        }
+        Err(anyhow!(
+            "No valid authentication configuration found for registry '{}'",
+            registry_name
+        ))
     }
 }
