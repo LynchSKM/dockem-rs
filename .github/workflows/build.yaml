@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-unix:
+  build-linux:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -30,25 +30,14 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os_name: linux
             arch: x86_64
-          - target: aarch64-apple-darwin
-            os_name: macos
-            arch: aarch64
-          - target: x86_64-apple-darwin
-            os_name: macos
-            arch: x86_64
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
 
-      - name: Set up Zig
-        uses: mlugg/setup-zig@v2
-
-      - name: Install cargo-zigbuild
-        uses: taiki-e/install-action@cargo-zigbuild
+      - name: Install cross
+        uses: taiki-e/install-action@cross
 
       - name: Get version from Cargo.toml
         id: version
@@ -56,7 +45,7 @@ jobs:
 
       - name: Build for ${{ matrix.target }}
         working-directory: cli
-        run: cargo zigbuild --release --target ${{ matrix.target }} --bin dockem-rs
+        run: cross build --release --target ${{ matrix.target }} --bin dockem-rs
 
       - name: Prepare artifact
         run: |
