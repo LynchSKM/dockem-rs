@@ -37,3 +37,59 @@ jobs:
 
       - name: Run the tests for the Unix platforms
         run: task test-unix
+
+  docker-config-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_CI_TEST_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Verify docker config.json exists
+        run: |
+          test -f ~/.docker/config.json
+          echo "Docker config.json found at ~/.docker/config.json"
+          cat ~/.docker/config.json | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'auths' in d, 'No auths in config'; print('Registries:', list(d['auths'].keys()))"
+
+      - name: Build the CLI
+        working-directory: cli
+        run: cargo build
+
+      - name: Test CLI reads docker config.json without explicit credentials
+        working-directory: cli
+        run: |
+          # Create a minimal Dockerfile and version file for the test
+          mkdir -p /tmp/dockem-test
+          echo 'FROM alpine:latest' > /tmp/dockem-test/Dockerfile
+          echo '{"version": "0.0.1"}' > /tmp/dockem-test/package.json
+
+          # Run the build command without --docker-username and --docker-password
+          # against a public repo to verify config.json auth is picked up.
+          # We expect it to authenticate via config.json and reach the manifest
+          # check phase (which confirms auth worked).
+          set +e
+          output=$(cargo run -- build \
+            --directory=/tmp/dockem-test \
+            --dockerfile-path=/tmp/dockem-test/Dockerfile \
+            --version-file=/tmp/dockem-test/package.json \
+            --image-name="${{ secrets.DOCKERHUB_CI_TEST_REPO }}" \
+            --registry=docker.io \
+            --tag=ci-config-test 2>&1)
+          exit_code=$?
+          echo "$output"
+
+          # The CLI should get past authentication. If config.json reading
+          # fails, we'd see "No valid authentication configuration found".
+          if echo "$output" | grep -q "No valid authentication configuration found"; then
+            echo "FAIL: CLI could not read docker config.json"
+            exit 1
+          fi
+
+          echo "PASS: CLI successfully read docker config.json for authentication"

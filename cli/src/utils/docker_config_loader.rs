@@ -84,3 +84,108 @@ impl DockerConfig {
             .and_then(|auths| auths.get(registry_name).cloned())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn test_load_config_from_path() {
+        let dir = tempfile::tempdir().unwrap();
+        let config_path = dir.path().join("config.json");
+        let mut file = std::fs::File::create(&config_path).unwrap();
+        write!(
+            file,
+            r#"{{"auths":{{"https://index.docker.io/v1/":{{"auth":"dXNlcjpwYXNz"}}}}}}"#
+        )
+        .unwrap();
+
+        let config =
+            DockerConfig::load(Some(config_path.to_str().unwrap().to_string())).unwrap();
+        let auth = config
+            .get_auth_config_for_registry("https://index.docker.io/v1/")
+            .unwrap();
+        assert_eq!(auth.auth.unwrap(), "dXNlcjpwYXNz");
+    }
+
+    #[test]
+    fn test_load_config_missing_registry() {
+        let dir = tempfile::tempdir().unwrap();
+        let config_path = dir.path().join("config.json");
+        let mut file = std::fs::File::create(&config_path).unwrap();
+        write!(
+            file,
+            r#"{{"auths":{{"https://index.docker.io/v1/":{{"auth":"dXNlcjpwYXNz"}}}}}}"#
+        )
+        .unwrap();
+
+        let config =
+            DockerConfig::load(Some(config_path.to_str().unwrap().to_string())).unwrap();
+        assert!(config.get_auth_config_for_registry("gcr.io").is_none());
+    }
+
+    #[test]
+    fn test_load_config_empty_auths() {
+        let dir = tempfile::tempdir().unwrap();
+        let config_path = dir.path().join("config.json");
+        let mut file = std::fs::File::create(&config_path).unwrap();
+        write!(file, r#"{{"auths":{{}}}}"#).unwrap();
+
+        let config =
+            DockerConfig::load(Some(config_path.to_str().unwrap().to_string())).unwrap();
+        assert!(config
+            .get_auth_config_for_registry("docker.io")
+            .is_none());
+    }
+
+    #[test]
+    fn test_load_config_file_not_found() {
+        let result = DockerConfig::load(Some("/nonexistent/config.json".to_string()));
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_load_config_via_docker_config_env() {
+        let dir = tempfile::tempdir().unwrap();
+        let config_path = dir.path().join("config.json");
+        let mut file = std::fs::File::create(&config_path).unwrap();
+        write!(
+            file,
+            r#"{{"auths":{{"custom.registry.io":{{"auth":"Y3VzdG9tOnRva2Vu"}}}}}}"#
+        )
+        .unwrap();
+
+        std::env::set_var("DOCKER_CONFIG", config_path.to_str().unwrap());
+        let config = DockerConfig::load(None).unwrap();
+        std::env::remove_var("DOCKER_CONFIG");
+
+        let auth = config
+            .get_auth_config_for_registry("custom.registry.io")
+            .unwrap();
+        assert_eq!(auth.auth.unwrap(), "Y3VzdG9tOnRva2Vu");
+    }
+
+    #[test]
+    fn test_load_config_multiple_registries() {
+        let dir = tempfile::tempdir().unwrap();
+        let config_path = dir.path().join("config.json");
+        let mut file = std::fs::File::create(&config_path).unwrap();
+        write!(
+            file,
+            r#"{{"auths":{{"https://index.docker.io/v1/":{{"auth":"ZG9ja2VyOnBhc3M="}},"ghcr.io":{{"auth":"Z2l0aHViOnRva2Vu"}}}}}}"#
+        )
+        .unwrap();
+
+        let config =
+            DockerConfig::load(Some(config_path.to_str().unwrap().to_string())).unwrap();
+        let docker_auth = config
+            .get_auth_config_for_registry("https://index.docker.io/v1/")
+            .unwrap();
+        assert_eq!(docker_auth.auth.unwrap(), "ZG9ja2VyOnBhc3M=");
+        let ghcr_auth = config
+            .get_auth_config_for_registry("ghcr.io")
+            .unwrap();
+        assert_eq!(ghcr_auth.auth.unwrap(), "Z2l0aHViOnRva2Vu");
+    }
+}
