@@ -1,5 +1,7 @@
 use super::docker_config_loader::DockerConfig;
 use anyhow::{anyhow, Context, Result};
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 use bollard::auth::DockerCredentials;
 use bollard::Docker;
 
@@ -59,10 +61,22 @@ pub async fn create_docker_client(
         .or_else(|| docker_config.get_auth_config_for_registry("https://index.docker.io/v1/"));
 
     if let Some(auth_config) = auth_config {
+        let (decoded_username, decoded_password) = auth_config
+            .auth
+            .as_deref()
+            .and_then(|encoded| STANDARD.decode(encoded).ok())
+            .and_then(|bytes| String::from_utf8(bytes).ok())
+            .and_then(|decoded| {
+                decoded
+                    .split_once(':')
+                    .map(|(u, p)| (u.to_string(), p.to_string()))
+            })
+            .unzip();
+
         let auth = DockerCredentials {
-            username: None,
-            password: None,
-            auth: auth_config.auth,
+            username: decoded_username,
+            password: decoded_password,
+            auth: None,
             email: auth_config.email,
             serveraddress: Some(registry_name.to_string()),
             identitytoken: None,
