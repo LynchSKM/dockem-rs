@@ -218,7 +218,7 @@ There are a few tweaks and features I'd like to implement to improve the overall
   refactoring and feature development
 - [ ] Test that the CLI can read docker `config.json` files on a server if docker username
   and password are not given.
-- [ ] Setup a Custom GitHub runner that can build the Darwin (macOS) versions. Steps to do
+- [x] Setup a Custom GitHub runner that can build the Darwin (macOS) versions. Steps to do
   so can be found in
   this [article](https://blog.crafteo.io/2024/02/29/my-rust-cross-compilation-journey/).
 - [ ] Add a Homebrew tap
@@ -290,8 +290,6 @@ task build
 
 * Linux x86_64 / Linux amd64
 * Linux aarch64 / Linux arm64
-* Windows
-
-I wanted to support Darwin (macOS) Targets, but it seemed like too much effort for now.
-Maybe in a future release I will work on figuring it out by following
-this [article](https://blog.crafteo.io/2024/02/29/my-rust-cross-compilation-journey/).
+* macOS x86_64 (Intel)
+* macOS aarch64 (Apple Silicon)
+* Windows x86_64
