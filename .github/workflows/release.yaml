@@ -25,11 +25,8 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch all branches
-        run: |
-          git fetch origin main:main
-          git fetch origin develop:develop
-          git checkout develop
+      - name: Set up local main branch
+        run: git branch main origin/main
 
       - name: Configure git
         run: |
