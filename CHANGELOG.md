@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+### [1.2.1](https://github.com/LynchSKM/dockem-rs/compare/v1.2.0...v1.2.1) (2026-05-30)
+
+
+### Bug Fixes
+
+* **devops-build:** add workflow_dispatch trigger for manual tag builds ([2e0317d](https://github.com/LynchSKM/dockem-rs/commit/2e0317de8681256ff8a8fe58e5883720cd693d54))
+* **devops-build:** add workflow_dispatch trigger for manual tag builds ([#24](https://github.com/LynchSKM/dockem-rs/issues/24)) ([bf09f6b](https://github.com/LynchSKM/dockem-rs/commit/bf09f6b10c3f49409c0bf62002ec793b58448e62))
+
 ## [1.2.0](https://github.com/LynchSKM/dockem-rs/compare/v1.1.1...v1.2.0) (2026-05-30)
 
 
