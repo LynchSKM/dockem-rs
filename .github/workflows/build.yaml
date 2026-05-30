@@ -12,6 +12,10 @@ on:
       - main
       - develop
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-unix:
     runs-on: ubuntu-latest
@@ -39,6 +43,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+
+      - name: Set up Zig
+        uses: mlugg/setup-zig@v2
 
       - name: Install cargo-zigbuild
         uses: taiki-e/install-action@cargo-zigbuild
