@@ -1,9 +1,8 @@
 use crate::utils::build_log::BuildLog;
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
 use oci_client::client::{Client, ClientConfig, ClientProtocol};
 use oci_client::secrets::RegistryAuth;
 use oci_client::{Reference, RegistryOperation};
-use std::error;
 use std::str::FromStr;
 
 /// Creates an OCI distribution client and authenticates with the specified registry.
@@ -16,14 +15,14 @@ use std::str::FromStr;
 /// * `build_log` - A mutable reference to the `BuildLog` struct to record the build state.
 ///
 /// # Returns
-/// * `Result<(Client, Reference), Box<dyn error::Error>>` containing the initialized and authenticated client that can pull and push images or an error if it fails.
+/// * `Result<(Client, Reference)>` containing the initialized and authenticated client that can pull and push images, or an error if it fails.
 pub async fn create_regclient_client(
     registry: &str,
     username: &str,
     password: &str,
     docker_image_name: &str,
     build_log: &mut BuildLog,
-) -> Result<(Client, Reference), Box<dyn error::Error>> {
+) -> Result<(Client, Reference)> {
     let mut custom_host = false;
     let default_dockerhub_registry_for_client = "docker.io";
 
@@ -65,32 +64,38 @@ pub async fn create_regclient_client(
 
     // Attempt authentication with the registry
     // Construct a reference to an image in the registry
-    print!("Creating registry client {} ", docker_image_name);
-    let reference = Reference::from_str(&docker_image_name)?;
+    println!("Creating registry client for image: {}", docker_image_name);
+    let reference = Reference::from_str(docker_image_name)
+        .with_context(|| format!("Failed to parse image reference: {}", docker_image_name))?;
 
     // Authenticate to ensure the client is ready for use
     client
         .auth(&reference, &registry_auth, RegistryOperation::Pull)
         .await
         .map_err(|err| {
-            eprintln!(
-                "ERROR: Failed to authenticate with registry for pull operation: '{}': {}",
-                build_log.docker_registry.clone().unwrap().to_string(),
+            anyhow!(
+                "Failed to authenticate with registry for pull operation: '{}': {}",
+                build_log
+                    .docker_registry
+                    .clone()
+                    .unwrap_or_else(|| "unknown".to_string()),
                 err
-            );
-            err
+            )
         })?;
 
     client
         .auth(&reference, &registry_auth, RegistryOperation::Push)
         .await
         .map_err(|err| {
-            eprintln!(
-                "ERROR: Failed to authenticate with registry for push operation: '{}': {}",
-                build_log.docker_registry.clone().unwrap().to_string(),
+            anyhow!(
+                "Failed to authenticate with registry for push operation: '{}': {}",
+                build_log
+                    .docker_registry
+                    .clone()
+                    .unwrap_or_else(|| "unknown".to_string()),
                 err
-            );
-            err
+            )
         })?;
+
     Ok((client, reference))
 }

@@ -21,40 +21,40 @@ enum Commands {
 
 #[derive(Parser)]
 struct BuildArgs {
-    #[arg(short, long, default_value = "./")]
+    #[arg(short = 'd', long, default_value = "./")]
     directory: String,
 
-    #[arg(short, long, default_value = "./Dockerfile")]
+    #[arg(short = 'f', long, default_value = "./Dockerfile")]
     dockerfile_path: String,
 
-    #[arg(short, long)]
+    #[arg(short = 'i', long)]
     image_name: String,
 
-    #[arg(short, long, default_value = "./package.json")]
+    #[arg(short = 'F', long, default_value = "./package.json")]
     version_file: String,
 
-    #[arg(short, long, default_value = "docker.io")]
+    #[arg(short = 'r', long, default_value = "docker.io")]
     registry: String,
 
-    #[arg(short, long)]
+    #[arg(short = 't', long)]
     tag: Vec<String>,
 
-    #[arg(short, long)]
+    #[arg(short = 'u', long)]
     docker_username: Option<String>,
 
-    #[arg(short, long)]
+    #[arg(short = 'p', long)]
     docker_password: Option<String>,
 
-    #[arg(short, long)]
+    #[arg(short = 'l', long)]
     latest: bool,
 
-    #[arg(short, long)]
+    #[arg(short = 'm', long)]
     main_version: bool,
 
     #[arg(short = 'I', long)]
     ignore_build_directory: bool,
 
-    #[arg(short, long)]
+    #[arg(short = 'w', long)]
     watch_file: Vec<String>,
 
     #[arg(short = 'W', long)]

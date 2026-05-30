@@ -55,6 +55,26 @@ tasks:
         cd ../
         npx --yes entro-version release --main-branch-name=main --commit-and-tag-version-flag="--release-as=major"
 
+  ci:release:
+    desc: "Run a cargo release in CI without GPG signing"
+    cmds:
+      - |
+        cd cli
+        cargo set-version {{.NEXT_VERSION}}
+        git commit -am "chore(release): update cargo version"
+        cd ../
+        npx --yes entro-version release --main-branch-name=main --no-sign
+
+  ci:release-major:
+    desc: "Run a major release in CI without GPG signing"
+    cmds:
+      - |
+        cd cli
+        cargo set-version {{.NEXT_MAJOR_VERSION}}
+        git commit -am "chore(release): update cargo version"
+        cd ../
+        npx --yes entro-version release --main-branch-name=main --no-sign --commit-and-tag-version-flag="--release-as=major"
+
   build-binary:
     desc: "Build the binary"
     cmds:

@@ -216,7 +216,7 @@ There are a few tweaks and features I'd like to implement to improve the overall
 - [x] Add more examples to the documentation on how to use the `cli` effectively
 - [ ] Create end-to-end tests to ensure the core is working, this allows for faster
   refactoring and feature development
-- [ ] Test that the CLI can read docker `config.json` files on a server if docker username
+- [x] Test that the CLI can read docker `config.json` files on a server if docker username
   and password are not given.
 - [ ] Setup a Custom GitHub runner that can build the Darwin (macOS) versions. Steps to do
   so can be found in

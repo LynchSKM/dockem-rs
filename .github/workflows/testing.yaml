@@ -10,35 +10,132 @@ on:
       - main
       - develop
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # Checkout the repository
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Install Task
       - name: Install Task
         uses: arduino/setup-task@v2
 
-      # Set up Rust toolchain
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          toolchain: stable
-          override: true
+          node-version: "20"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
           components: rustfmt, clippy
-          profile: minimal
 
-      # Install cross for cross-compilation
       - name: Install cross
-        run: cargo install cross
+        uses: taiki-e/install-action@cross
 
-      # Display Rust version
-      - name: Display Rust version
-        run: rustc --version
-
-      # Run the tests
       - name: Run the tests for the Unix platforms
         run: task test-unix
+
+  build-cli:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the CLI
+        working-directory: cli
+        run: cargo build
+
+      - name: Upload CLI binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dockem-rs
+          path: cli/target/debug/dockem-rs
+
+  docker-config-test:
+    runs-on: ubuntu-latest
+    needs: build-cli
+    timeout-minutes: 10
+    steps:
+      - name: Download CLI binary
+        uses: actions/download-artifact@v4
+        with:
+          name: dockem-rs
+
+      - name: Make binary executable
+        run: chmod +x dockem-rs
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_CI_TEST_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Verify docker config.json exists
+        run: |
+          test -f ~/.docker/config.json
+          echo "Docker config.json found at ~/.docker/config.json"
+          cat ~/.docker/config.json | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'auths' in d, 'No auths in config'; print('Registries:', list(d['auths'].keys()))"
+
+      - name: Test CLI reads docker config.json without explicit credentials
+        run: |
+          mkdir -p /tmp/dockem-test
+
+          cat > /tmp/dockem-test/Dockerfile << 'DOCKERFILE'
+          FROM alpine:latest
+          COPY --chmod=755 package.json /app/package.json
+          RUN --mount=type=tmpfs,target=/tmpdir echo "BuildKit mount works" > /tmpdir/test && cat /tmpdir/test
+          DOCKERFILE
+
+          echo '{"version": "0.0.1"}' > /tmp/dockem-test/package.json
+
+          ./dockem-rs build \
+            --directory=/tmp/dockem-test \
+            --dockerfile-path=/tmp/dockem-test/Dockerfile \
+            --version-file=/tmp/dockem-test/package.json \
+            --image-name="${{ secrets.DOCKERHUB_CI_TEST_REPO }}" \
+            --registry=docker.io \
+            --tag=ci-config-test
+
+  docker-credentials-test:
+    runs-on: ubuntu-latest
+    needs: build-cli
+    timeout-minutes: 10
+    steps:
+      - name: Download CLI binary
+        uses: actions/download-artifact@v4
+        with:
+          name: dockem-rs
+
+      - name: Make binary executable
+        run: chmod +x dockem-rs
+
+      - name: Test CLI with explicit username and password
+        run: |
+          mkdir -p /tmp/dockem-creds-test
+
+          cat > /tmp/dockem-creds-test/Dockerfile << 'DOCKERFILE'
+          FROM alpine:latest
+          COPY --chmod=644 package.json /app/package.json
+          RUN --mount=type=tmpfs,target=/tmpdir echo "BuildKit verified" > /tmpdir/out && cat /tmpdir/out
+          DOCKERFILE
+
+          echo '{"version": "0.0.2"}' > /tmp/dockem-creds-test/package.json
+
+          ./dockem-rs build \
+            --directory=/tmp/dockem-creds-test \
+            --dockerfile-path=/tmp/dockem-creds-test/Dockerfile \
+            --version-file=/tmp/dockem-creds-test/package.json \
+            --image-name="${{ secrets.DOCKERHUB_CI_TEST_REPO }}" \
+            --registry=docker.io \
+            --docker-username="${{ secrets.DOCKERHUB_USERNAME }}" \
+            --docker-password="${{ secrets.DOCKERHUB_CI_TEST_TOKEN }}" \
+            --tag=ci-creds-test

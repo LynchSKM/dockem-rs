@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.0](https://github.com/LynchSKM/dockem-rs/compare/v1.1.1...v1.2.0) (2026-05-30)
+
+
+### Features
+
+* **build:** enable BuildKit for Docker image builds ([#18](https://github.com/LynchSKM/dockem-rs/issues/18)) ([cd7bcf3](https://github.com/LynchSKM/dockem-rs/commit/cd7bcf36c9d637f8d5d808b30cad0f22e15e7460))
+* **build:** enable BuildKit for Docker image builds and add config.json tests ([e82ac55](https://github.com/LynchSKM/dockem-rs/commit/e82ac55eff6f7ff150501b42481f1e11ace02b2c))
+* **ci:** add ci:release tasks with --no-sign for unsigned CI releases ([2088141](https://github.com/LynchSKM/dockem-rs/commit/2088141146ef99e6013f37fcb509792bc3af8a32))
+* **ci:** add ci:release tasks with --no-sign for unsigned CI releases ([#23](https://github.com/LynchSKM/dockem-rs/issues/23)) ([0f6b6a4](https://github.com/LynchSKM/dockem-rs/commit/0f6b6a4c581ad8c366ed2a3d4cf799cbcb41d5ea))
+* **devops:** Refactor CI workflows and improve build tooling ([#16](https://github.com/LynchSKM/dockem-rs/issues/16)) ([a7f3a1f](https://github.com/LynchSKM/dockem-rs/commit/a7f3a1f5e1405690140d3bb283a3b67eba63aac9))
+* **setup:** Add Claude session initialization hooks and build setup ([#15](https://github.com/LynchSKM/dockem-rs/issues/15)) ([b1342dd](https://github.com/LynchSKM/dockem-rs/commit/b1342ddd81774b7f820c52bc5715fb01c4ec6c0a))
+
+
+### Bug Fixes
+
+* **auth:** decode config.json base64 auth into username/password for push ([269aa3e](https://github.com/LynchSKM/dockem-rs/commit/269aa3efb4c9d164ca4e81049a70cc239bac0f9e))
+* **auth:** fall through to config.json when credentials are empty ([902a8c9](https://github.com/LynchSKM/dockem-rs/commit/902a8c9782c7aff1b58446b6b848704edea6b857))
+* **ci:** create local main branch without fetching into checked-out develop ([a1b9fbb](https://github.com/LynchSKM/dockem-rs/commit/a1b9fbbf91812b7a3a33578be16d3c67e2b1e5f6))
+* **ci:** disable GPG signing in release workflow ([20fd0a4](https://github.com/LynchSKM/dockem-rs/commit/20fd0a4aa8e0c51d332d7bb93f09791ac96d92ea))
+* **ci:** disable GPG signing in release workflow ([#22](https://github.com/LynchSKM/dockem-rs/issues/22)) ([64c2980](https://github.com/LynchSKM/dockem-rs/commit/64c29804aa69a9dec1b774569918bc3bd8ecfb07))
+* **ci:** fix build workflow and add artifact upload ([13282f8](https://github.com/LynchSKM/dockem-rs/commit/13282f89fbcd9ef3356d137aa8add888698d6f55))
+* **ci:** fix release workflow branch setup ([#21](https://github.com/LynchSKM/dockem-rs/issues/21)) ([e63c1fb](https://github.com/LynchSKM/dockem-rs/commit/e63c1fb7085ebbe99cc4eaa1471ba7584f1a07f4))
+* **cli:** resolve short option conflicts and improve CI config test ([219d4e1](https://github.com/LynchSKM/dockem-rs/commit/219d4e1fb2539b186ce927c6023048d4f6f1c647))
+* **config:** treat DOCKER_CONFIG env var as directory path per Docker spec ([4282404](https://github.com/LynchSKM/dockem-rs/commit/4282404d80e5710cf1768f39a81b664daafcb5fd))
+* **devops-build:** add Zig setup step and cancel-in-progress for workflows ([b5ba635](https://github.com/LynchSKM/dockem-rs/commit/b5ba6351633db8324e1d9df237c0804c7d15a403))
+* **devops-build:** build Windows target on native runner instead of cross ([015aefa](https://github.com/LynchSKM/dockem-rs/commit/015aefaea57525dfd2da27708d6fa1fc4dca453c))
+* **devops-build:** fix CI build workflow and add artifact uploads ([#17](https://github.com/LynchSKM/dockem-rs/issues/17)) ([4a07830](https://github.com/LynchSKM/dockem-rs/commit/4a0783050652caa62d0c44b6b951181f05e6bb16))
+* **devops-build:** fix cross-compilation for Windows target ([7d0ddaa](https://github.com/LynchSKM/dockem-rs/commit/7d0ddaaaf9aab6fe47ff90d492f49c98e0508703))
+* **devops-build:** revert to cross for Linux and revert macOS roadmap/docs ([cf53078](https://github.com/LynchSKM/dockem-rs/commit/cf5307837c9b30ea6cb284724c6343970655f86a))
+* **devops-build:** use cargo-zigbuild for Linux/macOS and native runner for Windows ([a635415](https://github.com/LynchSKM/dockem-rs/commit/a635415aaad9e80e80d6daedb062828cfb8e439b))
+* **devops-build:** use matrix strategy for cross-compilation targets ([a314569](https://github.com/LynchSKM/dockem-rs/commit/a314569e29211f0bcb3044988a2fd43e6d519797))
+* **error-handling:** updated certain functions to use anyhow for errors that were Box<dyn Error> ([412fa3a](https://github.com/LynchSKM/dockem-rs/commit/412fa3acf38f4580843aa4417a377301e8c77e51))
+
 ### [1.1.1](https://github.com/LynchSKM/dockem-rs/compare/v1.1.0...v1.1.1) (2025-02-23)
 
 ## [1.1.0](https://github.com/LynchSKM/dockem-rs/compare/v1.0.7...v1.1.0) (2025-02-23)

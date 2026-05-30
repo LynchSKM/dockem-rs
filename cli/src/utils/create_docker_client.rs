@@ -1,4 +1,7 @@
 use super::docker_config_loader::DockerConfig;
+use anyhow::{anyhow, Context, Result};
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 use bollard::auth::DockerCredentials;
 use bollard::Docker;
 
@@ -27,46 +30,66 @@ pub async fn create_docker_client(
     username: Option<&str>,
     password: Option<&str>,
     registry_name: &str,
-) -> Result<(Docker, DockerCredentials), Box<dyn std::error::Error>> {
-    // Check if both username and password are provided
+) -> Result<(Docker, DockerCredentials)> {
+    // Check if both username and password are provided and non-empty
     if let (Some(user), Some(pass)) = (username, password) {
-        // If credentials are provided, create a Docker client with the specified auth
-        let auth = DockerCredentials {
-            username: Some(user.to_string()),
-            password: Some(pass.to_string()),
-            auth: None,
-            email: None,
-            serveraddress: Some(registry_name.to_string()),
-            identitytoken: None,
-            registrytoken: None,
-        };
-
-        let docker = Docker::connect_with_socket_defaults()?;
-        Ok((docker, auth))
-    } else {
-        // No credentials provided, so we load the Docker config file
-        let docker_config = DockerConfig::load(None)?;
-
-        // Attempt to get the auth config for the specified registry (or default registry)
-        let auth_config = docker_config
-            .get_auth_config_for_registry(&registry_name)
-            .or_else(|| docker_config.get_auth_config_for_registry("docker.io"));
-
-        if let Some(auth_config) = auth_config {
+        if !user.is_empty() && !pass.is_empty() {
             let auth = DockerCredentials {
-                username: None,
-                password: None,
-                auth: auth_config.auth,
-                email: auth_config.email,
+                username: Some(user.to_string()),
+                password: Some(pass.to_string()),
+                auth: None,
+                email: None,
                 serveraddress: Some(registry_name.to_string()),
                 identitytoken: None,
                 registrytoken: None,
             };
 
-            let docker = Docker::connect_with_socket_defaults()?;
-            Ok((docker, auth))
-        } else {
-            Err("No valid authentication configuration found.".into())
+            let docker = Docker::connect_with_socket_defaults()
+                .with_context(|| "Failed to connect to Docker using socket defaults")?;
+            return Ok((docker, auth));
         }
+    }
+
+    // No valid credentials provided, so we load the Docker config file
+    let docker_config =
+        DockerConfig::load(None).with_context(|| "Failed to load Docker configuration file")?;
+
+    // Attempt to get the auth config for the specified registry (or default registry)
+    let auth_config = docker_config
+        .get_auth_config_for_registry(registry_name)
+        .or_else(|| docker_config.get_auth_config_for_registry("docker.io"))
+        .or_else(|| docker_config.get_auth_config_for_registry("https://index.docker.io/v1/"));
+
+    if let Some(auth_config) = auth_config {
+        let (decoded_username, decoded_password) = auth_config
+            .auth
+            .as_deref()
+            .and_then(|encoded| STANDARD.decode(encoded).ok())
+            .and_then(|bytes| String::from_utf8(bytes).ok())
+            .and_then(|decoded| {
+                decoded
+                    .split_once(':')
+                    .map(|(u, p)| (u.to_string(), p.to_string()))
+            })
+            .unzip();
+
+        let auth = DockerCredentials {
+            username: decoded_username,
+            password: decoded_password,
+            auth: None,
+            email: auth_config.email,
+            serveraddress: Some(registry_name.to_string()),
+            identitytoken: None,
+            registrytoken: None,
+        };
+
+        let docker = Docker::connect_with_socket_defaults()
+            .with_context(|| "Failed to connect to Docker using socket defaults")?;
+        Ok((docker, auth))
+    } else {
+        Err(anyhow!(
+            "No valid authentication configuration found for registry '{}'",
+            registry_name
+        ))
     }
 }
