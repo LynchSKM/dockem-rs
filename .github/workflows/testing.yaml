@@ -75,25 +75,12 @@ jobs:
           echo '{"version": "0.0.1"}' > /tmp/dockem-test/package.json
 
           # Run the build command without --docker-username and --docker-password
-          # against a public repo to verify config.json auth is picked up.
-          # We expect it to authenticate via config.json and reach the manifest
-          # check phase (which confirms auth worked).
-          set +e
-          output=$(cargo run -- build \
+          # to verify config.json auth is picked up. The token has write access
+          # so this should complete a full build+push cycle.
+          cargo run -- build \
             --directory=/tmp/dockem-test \
             --dockerfile-path=/tmp/dockem-test/Dockerfile \
             --version-file=/tmp/dockem-test/package.json \
             --image-name="${{ secrets.DOCKERHUB_CI_TEST_REPO }}" \
             --registry=docker.io \
-            --tag=ci-config-test 2>&1)
-          exit_code=$?
-          echo "$output"
-
-          # The CLI should get past authentication. If config.json reading
-          # fails, we'd see "No valid authentication configuration found".
-          if echo "$output" | grep -q "No valid authentication configuration found"; then
-            echo "FAIL: CLI could not read docker config.json"
-            exit 1
-          fi
-
-          echo "PASS: CLI successfully read docker config.json for authentication"
+            --tag=ci-config-test
