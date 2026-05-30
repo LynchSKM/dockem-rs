@@ -69,14 +69,17 @@ jobs:
       - name: Test CLI reads docker config.json without explicit credentials
         working-directory: cli
         run: |
-          # Create a minimal Dockerfile and version file for the test
           mkdir -p /tmp/dockem-test
-          echo 'FROM alpine:latest' > /tmp/dockem-test/Dockerfile
+
+          # Use BuildKit-specific syntax to verify BuildKit is active
+          cat > /tmp/dockem-test/Dockerfile << 'DOCKERFILE'
+          FROM alpine:latest
+          COPY --chmod=755 package.json /app/package.json
+          RUN --mount=type=tmpfs,target=/tmpdir echo "BuildKit mount works" > /tmpdir/test && cat /tmpdir/test
+          DOCKERFILE
+
           echo '{"version": "0.0.1"}' > /tmp/dockem-test/package.json
 
-          # Run the build command without --docker-username and --docker-password
-          # to verify config.json auth is picked up. The token has write access
-          # so this should complete a full build+push cycle.
           cargo run -- build \
             --directory=/tmp/dockem-test \
             --dockerfile-path=/tmp/dockem-test/Dockerfile \
@@ -84,3 +87,43 @@ jobs:
             --image-name="${{ secrets.DOCKERHUB_CI_TEST_REPO }}" \
             --registry=docker.io \
             --tag=ci-config-test
+
+  docker-credentials-test:
+    runs-on: ubuntu-latest
+    needs: docker-config-test
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the CLI
+        working-directory: cli
+        run: cargo build
+
+      - name: Test CLI with explicit username and password
+        working-directory: cli
+        run: |
+          mkdir -p /tmp/dockem-creds-test
+
+          # Use BuildKit-specific syntax to verify BuildKit is active
+          cat > /tmp/dockem-creds-test/Dockerfile << 'DOCKERFILE'
+          FROM alpine:latest
+          COPY --chmod=644 package.json /app/package.json
+          RUN --mount=type=tmpfs,target=/tmpdir echo "BuildKit verified" > /tmpdir/out && cat /tmpdir/out
+          DOCKERFILE
+
+          echo '{"version": "0.0.2"}' > /tmp/dockem-creds-test/package.json
+
+          cargo run -- build \
+            --directory=/tmp/dockem-creds-test \
+            --dockerfile-path=/tmp/dockem-creds-test/Dockerfile \
+            --version-file=/tmp/dockem-creds-test/package.json \
+            --image-name="${{ secrets.DOCKERHUB_CI_TEST_REPO }}" \
+            --registry=docker.io \
+            --docker-username="${{ secrets.DOCKERHUB_USERNAME }}" \
+            --docker-password="${{ secrets.DOCKERHUB_CI_TEST_TOKEN }}" \
+            --tag=ci-creds-test
