@@ -132,7 +132,8 @@ pub async fn build_docker_image(params: Arc<BuildDockerImageParams>) -> Result<B
             &docker_client,
             &cleaned_params,
             &build_log.image_hash,
-            Arc::new(Mutex::new(build_log.clone())), // Clone build_log to avoid moving it
+            Arc::new(Mutex::new(build_log.clone())),
+            &docker_credentials,
         )
         .await?;
         build_log.local_tag = local_tag.clone();

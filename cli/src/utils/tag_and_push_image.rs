@@ -46,18 +46,17 @@ pub async fn tag_and_push_image(
     while let Some(output) = push_stream.next().await {
         match output {
             Ok(output) => {
-                // Print the status, progress, or error if they exist
+                if let Some(error) = output.error {
+                    return Err(BollardError::DockerStreamError { error });
+                }
                 if let Some(status) = output.status {
                     println!("Status: {}", status);
                 }
                 if let Some(progress) = output.progress {
                     println!("Progress: {}", progress);
                 }
-                if let Some(error) = output.error {
-                    eprintln!("Error: {}", error);
-                }
             }
-            Err(e) => return Err(e), // Return the error if the push fails
+            Err(e) => return Err(e),
         }
     }
 
