@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - develop
+    tags:
+      - "v*"
   pull_request:
     branches:
       - main
@@ -13,32 +15,34 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
-      # Checkout the repository
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Install Task
       - name: Install Task
         uses: arduino/setup-task@v2
 
-      # Set up Rust toolchain
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          toolchain: stable
-          override: true
+          node-version: "20"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
           components: rustfmt, clippy
-          profile: minimal
 
-      # Install cross for cross-compilation
       - name: Install cross
-        run: cargo install cross
+        uses: taiki-e/install-action@cross
 
-      # Display Rust version
-      - name: Display Rust version
-        run: rustc --version
-
-      # Build the binary
       - name: Build the binaries for each supported platform
         run: task build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-binaries
+          path: release/
+          if-no-files-found: error

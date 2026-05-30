@@ -15,30 +15,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # Checkout the repository
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Install Task
       - name: Install Task
         uses: arduino/setup-task@v2
 
-      # Set up Rust toolchain
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          toolchain: stable
-          override: true
+          node-version: "20"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
           components: rustfmt, clippy
-          profile: minimal
 
-      # Install cross for cross-compilation
       - name: Install cross
-        run: cargo install cross
+        uses: taiki-e/install-action@cross
 
-      # Display Rust version
-      - name: Display Rust version
-        run: rustc --version
-
-      # Run the tests
       - name: Run the tests for the Unix platforms
         run: task test-unix
