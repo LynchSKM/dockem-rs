@@ -13,6 +13,7 @@ apt-get install -y -qq --no-install-recommends \
   perl \
   make \
   xz-utils \
+  git-flow \
   > /dev/null 2>&1
 
 npm install -g @go-task/cli > /dev/null 2>&1
