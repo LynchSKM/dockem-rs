@@ -33,7 +33,7 @@ impl DockerConfig {
                 // Check if a DOCKER_CONFIG env is set and use that first
                 let env_config_path_str = env::var("DOCKER_CONFIG");
                 match env_config_path_str {
-                    Ok(path) => Path::new(&path).to_path_buf(),
+                    Ok(path) => Path::new(&path).join("config.json"),
                     Err(_) => {
                         println!("DOCKER_CONFIG is not set, trying default path");
                         // Default to ~/.docker/config.json if no path is provided
@@ -156,7 +156,7 @@ mod tests {
         )
         .unwrap();
 
-        std::env::set_var("DOCKER_CONFIG", config_path.to_str().unwrap());
+        std::env::set_var("DOCKER_CONFIG", dir.path().to_str().unwrap());
         let config = DockerConfig::load(None).unwrap();
         std::env::remove_var("DOCKER_CONFIG");
 
